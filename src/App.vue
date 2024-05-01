@@ -1,24 +1,25 @@
-<script setup>
-import { RouterView, RouterLink } from "vue-router";
-</script>
-
 <template>
-  <main class="container">
-    <nav>
-      <ul>
-        <li><strong>Bill's Bank and Used Car Sales</strong></li>
-      </ul>
-      <ul>
-        <li>
-          <RouterLink to="/">Home</RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/api-test">API Test</RouterLink>
-        </li>
-      </ul>
-    </nav>
-    <RouterView></RouterView>
-  </main>
+  <navigation />
+  <router-view />
 </template>
 
-<style scoped></style>
+<script>
+import Navigation from './components/commons/Navigation.vue';
+import { useLoggedInStore } from '@/stores/logged_in';
+
+export default {
+  name: "App",
+  components: {
+    Navigation
+  },
+  created() {
+    const store = useLoggedInStore();
+    store.autoLogin();
+  }
+};
+</script>
+
+<style>
+/* Style as needed */
+</style>
+
