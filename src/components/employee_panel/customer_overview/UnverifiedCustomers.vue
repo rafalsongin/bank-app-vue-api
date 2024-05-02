@@ -1,14 +1,14 @@
 <template>
-  <div class="container my-5">
-    <table class="table table-hover">
-      <thead class="column_header">
+  <div class="container my-3">
+    <table class="text-white table align-middle">
+      <thead>
         <tr>
-          <th scope="col" class="text-primary">User ID</th>
-          <th scope="col" class="text-primary">Full Name</th>
-          <th scope="col" class="text-primary">Username</th>
-          <th scope="col" class="text-primary">Email</th>
-          <th scope="col" class="text-primary">Approval Status</th>
-          <th scope="col" class="text-primary">Actions</th>
+          <th scope="col">User ID</th>
+          <th scope="col">Full Name</th>
+          <th scope="col">Username</th>
+          <th scope="col">Email</th>
+          <th scope="col">Approval Status</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -19,8 +19,8 @@
           <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
-            <button class="btn btn-success" @click="verifyCustomer(customer.userID)">Verify</button>
-            <button class="btn btn-danger" @click="declineCustomer(customer.userID)">Decline</button>
+            <button class="btn btn-verify fw-bold me-2" @click="verifyCustomer(customer.userID)">Verify</button>
+            <button class="btn btn-decline text-white fw-bold" @click="declineCustomer(customer.userID)">Decline</button>
           </td>
         </tr>
       </tbody>
@@ -66,3 +66,19 @@ export default {
   }
 }
 </script>
+
+<style>
+  .btn-verify{
+    background-color: #E8C547;
+  }
+  .btn-verify:hover {
+    background-color: #f8da8a; /* Green background on hover */
+
+  }
+  .btn-decline{
+    background-color: #5C80BC;
+  }
+  .btn-decline:hover{
+    background-color: #5588e3;
+  }
+</style>

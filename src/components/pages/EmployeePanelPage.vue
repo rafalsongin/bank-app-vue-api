@@ -1,10 +1,15 @@
 
 
 <template>
-  <div class="another-container my-5">
-    <button @click="toggleView" class="btn btn-info">{{ toggleButtonText }}</button>
+  <div class="another-container my-3">
+    <div class="bg-black">
+    <div class="d-flex justify-content-between align-items-center">
+      <button @click="toggleView" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonText }}</button>
+      <input type="text" class="form-control me-2" placeholder="Search Customers" @input="filterCustomers">
+    </div>
     <!-- Pass customers as a prop to the dynamic component -->
-    <component :is="currentView" :customers="customers" @update="update"  />
+    <component :is="currentView" :customers="customers" @update="update"/>
+  </div>
   </div>
 </template>
 
@@ -48,40 +53,21 @@ export default {
 </script>
 
 <style scoped>
-  body {
-    font-family: 'Open Sans', sans-serif;
-    background-color: #4D5061;
-  }
-
-  h1, th {
-    font-family: 'Roboto', sans-serif;
-  }
-
-  code, .code {
-    font-family: 'Fira Code', monospace;
-  }
-
-  .text-primary {
-    color: #ffffff; 
-  }
-
-  .column_header {
-    background-color: #5C80BC;
-    color: rgb(255, 255, 255);
-  }  
-
-  table {
-    background-color: #5C80BC;
-  }
-
   .container {
-    background-color: #5C80BC;
+    background-color: #4D5061 ;
     border-radius: 10px;
   }
 
-  .btn-info {
-    background-color: #627D98;
-    border: none;
-    color: white;
+  .btn-toggle-view {
+    background-color: #829ECC;
+    border-radius: 10px;
+    margin-left: 51px;
+  }
+  .btn-toggle-view:focus {
+    outline: none;  /* Removes the outline */
+    box-shadow: none;  /* Optional: Removes any focus shadow, if there is one */
+  }
+  .btn-toggle-view:hover {
+    background-color: #6190d3;
   }
 </style>

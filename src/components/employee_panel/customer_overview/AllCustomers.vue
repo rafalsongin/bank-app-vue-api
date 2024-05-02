@@ -1,13 +1,13 @@
 <template>
-  <div class="container my-5">
-    <table class="table table-hover">
-      <thead class="column_header">
+  <div class="container my-3">
+    <table class="text-white table align-middle">
+      <thead>
         <tr>
-          <th scope="col" class="text-primary">User ID</th>
-          <th scope="col" class="text-primary">Full Name</th>
-          <th scope="col" class="text-primary">Username</th>
-          <th scope="col" class="text-primary">Email</th>
-          <th scope="col" class="text-primary">Approval Status</th>
+          <th scope="col">User ID</th>
+          <th scope="col">Full Name</th>
+          <th scope="col">Username</th>
+          <th scope="col">Email</th>
+          <th scope="col">Approval Status</th>
         </tr>
       </thead>
       <tbody>

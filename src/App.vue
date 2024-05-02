@@ -26,8 +26,7 @@ export default {
 
 body {
   font-family: 'Open Sans', sans-serif;
-  background-color: #4D5061;
-  
+  background-color: #CDD1C4;
 }
 </style>
 
