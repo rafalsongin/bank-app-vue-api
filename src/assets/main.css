@@ -9,7 +9,7 @@ h2 {
   font-weight: 700;
 }
 
-/* Product cards */
+/* Products cards */
 
 .product-card {
   box-shadow: 1px 1px 4px 0 rgb(30 30 30 / 16%);
@@ -43,6 +43,7 @@ h2 {
   margin: 0;
   font-size: 0.9rem;
 }
+
 .product-card small {
   color: #b3b3b3;
   font-size: 0.8rem;
