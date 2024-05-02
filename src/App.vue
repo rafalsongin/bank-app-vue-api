@@ -16,7 +16,7 @@ export default {
     const store = useLoggedInStore();
     store.autoLogin();
   }
-};
+};// stop
 </script>
 
 <style>
@@ -27,6 +27,7 @@ export default {
 body {
   font-family: 'Open Sans', sans-serif;
   background-color: #4D5061;
+  
 }
 </style>
 
