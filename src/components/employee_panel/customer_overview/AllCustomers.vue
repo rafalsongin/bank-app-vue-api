@@ -11,12 +11,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.user_id">
-          <td>{{ user.user_id }}</td>
-          <td>{{ user.full_name }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.approval_status }}</td>
+        <tr v-for="customer in customers" :key="customer.user_id">
+          <td>{{ customer.user_id }}</td>
+          <td>{{ customer.fullName }}</td> 
+          <td>{{ customer.username }}</td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.accountApprovalStatus }}</td>
         </tr>
       </tbody>
     </table>
@@ -24,15 +24,26 @@
 </template>
 
 <script>
+import axios from "../../../axios_auth";
+// return full name of customer
 export default {
   data() {
     return {
-      users: [
-        // Sample user data
-        { user_id: 1, full_name: 'John Doe', username: 'john.doe', email: 'john@example.com', approval_status: 'Approved' },
-        // Add more users here
-      ],
+      customers: [],
     };
+  },
+  mounted() {
+    this.update();
+  },
+  methods: {
+    update() {
+      axios.get("/customers")
+        .then((result) => {
+          console.log(result);
+          this.customers = result.data;
+        })
+        .catch((error) => console.log(error));
+    },
   },
 };
 </script>
@@ -40,6 +51,7 @@ export default {
 <style scoped>
  body {
   font-family: 'Open Sans', sans-serif;
+  background-color: #4D5061;
 }
 
 h1, th {
@@ -51,10 +63,20 @@ code, .code {
 }
 
 .text-primary {
-  color: #30233D; 
+  color: #ffffff; 
 }
 
  .column_header{
-background-color: #CDCD1C;
+background-color: #5C80BC;
+color: rgb(255, 255, 255);
 }  
+
+table{
+  background-color: #5C80BC;
+
+}
+.container{
+  background-color: #5C80BC;
+  border-radius: 10px;
+}
 </style>

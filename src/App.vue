@@ -20,6 +20,9 @@ export default {
 </script>
 
 <style>
-/* Style as needed */
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: #E8C547;
+}
 </style>
 
