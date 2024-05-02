@@ -1,5 +1,5 @@
 <template>
-  <div class="container my-3">
+  <div class="my-3">
     <table class="text-white table align-middle">
       <thead>
         <tr>

@@ -1,15 +1,14 @@
 
-
 <template>
-  <div class="another-container my-3">
-    <div class="bg-black">
+    <div class="container">
     <div class="d-flex justify-content-between align-items-center">
       <button @click="toggleView" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonText }}</button>
-      <input type="text" class="form-control me-2" placeholder="Search Customers" @input="filterCustomers">
+      <input type="text" class="form-control me-2" placeholder="Search Customers" v-model="searchQuery">
     </div>
     <!-- Pass customers as a prop to the dynamic component -->
-    <component :is="currentView" :customers="customers" @update="update"/>
-  </div>
+    <div class="the-table"> 
+    <component :is="currentView" :customers="filteredCustomers" @update="update"/>
+    </div>
   </div>
 </template>
 
@@ -25,10 +24,24 @@ export default {
       currentView:  markRaw(AllCustomers),
       toggleButtonText: 'Show Unverified Customers',
       customers: [],
+       searchQuery: '', // Search term input by user
     };
   },
   mounted() {
     this.update();
+  },
+  computed: {
+    filteredCustomers() {
+      if (!this.searchQuery) {
+        return this.customers; // return all customers if searchQuery is empty
+      }
+      const searchTerm = this.searchQuery.toLowerCase();
+      return this.customers.filter(customer => {
+        return Object.values(customer).some(value =>
+          String(value).toLowerCase().includes(searchTerm)
+        );
+      });
+    }
   },
   methods: {
     update() {
@@ -53,7 +66,7 @@ export default {
 </script>
 
 <style scoped>
-  .container {
+  .the-table {
     background-color: #4D5061 ;
     border-radius: 10px;
   }
@@ -61,7 +74,6 @@ export default {
   .btn-toggle-view {
     background-color: #829ECC;
     border-radius: 10px;
-    margin-left: 51px;
   }
   .btn-toggle-view:focus {
     outline: none;  /* Removes the outline */
