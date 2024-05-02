@@ -11,9 +11,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customers" :key="customer.user_id">
-          <td>{{ customer.user_id }}</td>
-          <td>{{ customer.fullName }}</td> 
+        <tr v-for="customer in customers" :key="customer.userID">
+          <td>{{ customer.userID }}</td>
+          <td>{{ customer.fullName }} </td> 
           <td>{{ customer.username }}</td>
           <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
