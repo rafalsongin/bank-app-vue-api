@@ -40,9 +40,11 @@ export default {
   props: {
     customers: Array
     },
-    mounted() {
-        this.customersFiltered = this.customers.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
-    },
+    computed: {
+    customersFiltered() {
+      return this.customers.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
+    }
+  },
     methods: {
     verifyCustomer(userID) {
         axios.post(`/customers/approve/${userID}`)

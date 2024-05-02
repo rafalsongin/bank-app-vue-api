@@ -36,10 +36,10 @@ export default {
     },
     toggleView() {
       if (this.currentView === AllCustomers) {
-        this.currentView = UnverifiedCustomers;
+        this.currentView = markRaw(UnverifiedCustomers);
         this.toggleButtonText = 'Show All Customers';
       } else {
-        this.currentView = AllCustomers;
+        this.currentView = markRaw(AllCustomers);
         this.toggleButtonText = 'Show Unverified Customers';
       }
     }
