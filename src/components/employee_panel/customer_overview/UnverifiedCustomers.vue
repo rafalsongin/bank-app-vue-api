@@ -12,7 +12,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customers" :key="customer.userID">
+        <tr v-for="customer in customersFiltered" :key="customer.userID">
           <td>{{ customer.userID }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
@@ -29,19 +29,38 @@
 </template>
 
 <script>
+import axios from "../../../axios_auth";
+
 export default {
+    data () {
+        return {
+            customersFiltered: []
+        }
+    },
   props: {
     customers: Array
-  },
-  methods: {
-    // verifyCustomer(userID) {
-    //   // Trigger verify action
-    //   this.$emit('verify', userID);
-    // },
-    // declineCustomer(userID) {
-    //   // Trigger decline action
-    //   this.$emit('decline', userID);
-    // }
+    },
+    mounted() {
+        this.customersFiltered = this.customers.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
+    },
+    methods: {
+    verifyCustomer(userID) {
+        axios.post(`/customers/approve/${userID}`)
+          .then((result) => {
+            console.log(result);
+            this.$emit('update');
+          })
+          .catch((error) => console.log(error));
+    },
+      declineCustomer(userID) {
+                axios.post(`/customers/decline/${userID}`)
+          .then((result) => {
+            console.log(result);
+            this.$emit('update');
+          })
+          .catch((error) => console.log(error));
+      
+    }
   }
 }
 </script>

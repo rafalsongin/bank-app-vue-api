@@ -4,7 +4,7 @@
   <div class="another-container my-5">
     <button @click="toggleView" class="btn btn-info">{{ toggleButtonText }}</button>
     <!-- Pass customers as a prop to the dynamic component -->
-    <component :is="currentView" :customers="customers" />
+    <component :is="currentView" :customers="customers" @update="update"  />
   </div>
 </template>
 
