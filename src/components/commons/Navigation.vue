@@ -6,20 +6,25 @@
           <router-link to="/" class="nav-link" active-class="active"
             >Home</router-link
           >
-        </li>      
+        </li>
+        <li class="nav-item">
+          <router-link to="/login" class="nav-link" active-class="active"
+          >Login</router-link
+          >
+        </li>
         <li class="nav-item">
           <router-link to="/products" class="nav-link" active-class="active"
             >Products</router-link
           >
         </li>
         <li class="nav-item">
-          <router-link to="/login" class="nav-link" active-class="active"
-            >Login</router-link
+          <router-link to="/employeepanel" class="nav-link" active-class="active"
+            >Customers</router-link
           >
         </li>
         <li class="nav-item">
-          <router-link to="/employeepanel" class="nav-link" active-class="active"
-            >Customers</router-link
+          <router-link to="/register" class="nav-link" active-class="active"
+          >Customer registration</router-link
           >
         </li>
       </ul>

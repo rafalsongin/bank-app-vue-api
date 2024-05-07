@@ -4,6 +4,7 @@ import Home from '../components/pages/Home.vue';
 import ProductList from '../components/products/ProductList.vue';
 import CreateProduct from '../components/products/CreateProduct.vue';
 import EditProduct from '../components/products/EditProduct.vue';
+import Register from '../components/pages/Register.vue';
 import Login from '../components/pages/Login.vue';
 import EmployeePanelPage from "../components/pages/EmployeePanelPage.vue";
 
@@ -15,7 +16,9 @@ const router = createRouter({
     { path: '/login', component: Login },
     { path: '/createproduct', component: CreateProduct },
     { path: '/editproduct/:id', component: EditProduct, props: true },
-    { path: '/employeepanel', component: EmployeePanelPage }
+    { path: '/employeepanel', component: EmployeePanelPage },
+    { path: '/register', component: Register },
+    { path: '/login', component: Login }
   ]
 })
 
