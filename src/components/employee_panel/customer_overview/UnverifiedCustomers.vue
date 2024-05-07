@@ -15,7 +15,7 @@
         <tr v-for="customer in customersFiltered" :key="customer.userID">
           <td>{{ customer.userID }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
-          <td>{{ customer.username }}</td>
+          <td>{{ customer.email }}</td>
           <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
