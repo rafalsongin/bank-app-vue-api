@@ -1,65 +1,52 @@
 <template>
   <section>
     <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <form>
-            <div class="h2">
-              <h2>Login</h2>
-            </div>
-            <div class="mb-3">
-              <label for="inputEmail" class="form-label">Email</label>
-              <input v-model="email" id="inputEmail" type="email" class="form-control" />
-            </div>
-            <div class="mb-3">
-              <label for="inputPassword" class="form-label">Password</label>
-              <input v-model="password" type="password" class="form-control" id="inputPassword" />
-            </div>
-            <button @click="login" type="button" class="btn btn-primary">Submit</button>
-          </form>
+      <form @submit.prevent="login">
+        <h2>Login</h2>
+        <div class="mb-3">
+          <label for="username">Username</label>
+          <input v-model="username" id="username" type="text" class="form-control" required>
         </div>
-      </div>
+        <div class="mb-3">
+          <label for="password">Password</label>
+          <input v-model="password" type="password" class="form-control" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
     </div>
   </section>
 </template>
 
 <script>
-import { useLoggedInStore } from '@/stores/logged_in';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useLoggedInStore } from '@/stores/logged_in';
 
 export default {
-  name: "Login",
   setup() {
-    const email = ref("");
-    const password = ref("");
+    const username = ref('');
+    const password = ref('');
     const store = useLoggedInStore();
-    const router = useRouter();
 
     const login = async () => {
       try {
-        await store.login(email.value, password.value);
+        await store.login(username.value, password.value);
         if (store.isLoggedIn) {
-          console.log("Login Success");
-          router.replace("/products");
+          console.log("Login Successful");
+          alert("Login successful");
         } else {
           console.log("Login Failed");
+          alert("Login failed");
         }
       } catch (error) {
-        alert("Login Failed");
-        console.error(error);
+        alert("Login Failed: " + error.message);
       }
     };
 
     return {
-      email: email,
+      username,
       password,
       login
     };
   }
 };
 </script>
-
-<style>
-/* Style as needed */
-</style>

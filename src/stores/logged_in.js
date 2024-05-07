@@ -1,53 +1,50 @@
-import { defineStore } from "pinia";
-import axios from "../axios_auth";
+import { defineStore } from 'pinia';
+import axios from '../axios_auth';
 
-export const useLoggedInStore = defineStore("logged_in", {
-
+export const useLoggedInStore = defineStore('logged_in', {
     state: () => ({
-        username: localStorage.getItem('email') || '',
+        username: localStorage.getItem('username') || '',
         token: localStorage.getItem('token') || '',
     }),
     getters: {
-        isLoggedIn: (state) => !!state.token && !!state.email,
-        getToken: (state) => state.token,
+        isLoggedIn: (state) => !!state.token
     },
     actions: {
         login(username, password) {
             return new Promise((resolve, reject) => {
-                axios.post('/users/login', {
+                axios.post('/auth/login', {
                     username: username,
                     password: password,
                 })
                     .then((response) => {
-                        this.email = response.data.email;
-                        this.token = response.data.token;
+                        this.username = username; // Set the username
+                        this.token = response.data.token; // Set the token
                         localStorage.setItem('token', response.data.token);
-                        localStorage.setItem('email', response.data.email);
-                        axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token;
-                        console.log(response.data.token);
-                        resolve();
+                        localStorage.setItem('username', username);
+                        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+                        resolve(response.data); // resolve with data for further processing if needed
                     })
                     .catch((error) => {
-                        console.log(error);
-                        reject();
+                        console.error("Login failed with error:", error);
+                        reject(error);
                     });
             });
-
-
+        },
+        logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            this.token = '';
+            this.username = '';
+            axios.defaults.headers.common['Authorization'] = '';
         },
         autoLogin() {
             const token = localStorage.getItem('token');
-            const username = localStorage.getItem('email');
-
+            const username = localStorage.getItem('username');
             if (token && username) {
-                axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
                 this.token = token;
-                this.email = username;
-            }
-            else {
-                console.log('no token or username');
+                this.username = username;
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             }
         },
-
     },
 });
