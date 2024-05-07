@@ -47,7 +47,7 @@ export default {
   },
     methods: {
     verifyCustomer(userID) {
-        axios.post(`/customers/approve/${userID}`)
+        axios.post(`/api/customers/approve/${userID}`)
           .then((result) => {
             console.log(result);
             this.$emit('update');
@@ -55,7 +55,7 @@ export default {
           .catch((error) => console.log(error));
     },
       declineCustomer(userID) {
-                axios.post(`/customers/decline/${userID}`)
+                axios.post(`/api/customers/decline/${userID}`)
           .then((result) => {
             console.log(result);
             this.$emit('update');

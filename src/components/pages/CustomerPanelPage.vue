@@ -36,6 +36,7 @@ import CustomerPanelDetails from "@/components/customer_panel/CustomerPanelDetai
 import CustomerPanelTransactions from "@/components/customer_panel/CustomerPanelTransactions.vue";
 import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
 import CustomerPanelSuspended from "@/components/customer_panel/CustomerPanelSuspended.vue";
+import axios from "@/axios_auth";
 
 export default {
   components: {
@@ -56,38 +57,34 @@ export default {
     };
   },
   methods: {
+    async fetchCustomerDetails(id) {
+      try {
+        const response = await axios.get(`/api/customers/${id}`);
+        if (response.status !== 200 || !response.data) {
+          throw new Error("User was not found!");
+        }
+        this.checkAccountStatus(response.data);
+        this.currentUser = response.data;
+      } catch (error) {
+        console.error('Error fetching customer details:', error);
+        this.$router.push("/404");
+      }
+    },
     checkAccountStatus(data) {
-      switch (data.account_approval_status){
+      const accountStatus = data.accountApprovalStatus || "UNKNOWN";
+      switch (accountStatus) {
         case "APPROVED":
           this.customerStatus = "APPROVED";
           this.isNavigationDisabled = false;
-          return;
+          break;
         case "UNVERIFIED":
           this.customerStatus = "UNVERIFIED";
-          return;
+          break;
         case "DECLINED":
           this.customerStatus = "DECLINED";
-          return;
+          break;
         default:
-          throw "Unknown customer status!";
-      }
-    },
-    async fetchCustomerDetails(id) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/customers/${id}`);
-        if (!response.ok) {
-          throw new Error('API response was not OK (200)');
-        }
-        const data = await response.json();
-        if(data != null){
-          this.checkAccountStatus(data);
-          this.currentUser = data;
-        } else{
-          throw "User was not found!"
-        }
-      } catch (error) {
-        console.error('Error fetching customer details:', error);
-        this.$router.replace({ path: '/404' });
+          throw new Error("Unknown customer status!");
       }
     },
     selectPanel(panel) {

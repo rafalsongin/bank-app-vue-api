@@ -8,7 +8,7 @@
     </div>
     <div v-else>
       <h5>Hello, welcome back</h5>
-      <h2 v-if="currentUser != null">{{ currentUser.first_name + " " + currentUser.last_name }}</h2>
+      <h2 v-if="currentUser != null">{{ currentUser.firstName + " " + currentUser.lastName }}</h2>
     </div>
   </div>
 </template>
