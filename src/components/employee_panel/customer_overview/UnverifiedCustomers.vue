@@ -12,15 +12,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customersFiltered" :key="customer.userID">
-          <td>{{ customer.userID }}</td>
+        <tr v-for="customer in filteredCustomers" :key="customer.userId">
+          <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
-          <td>{{ customer.email }}</td>
+          <td>{{ customer.username }}</td>
           <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
-            <button class="btn btn-verify fw-bold me-2" @click="verifyCustomer(customer.userID)">Verify</button>
-            <button class="btn btn-decline text-white fw-bold" @click="declineCustomer(customer.userID)">Decline</button>
+            <button class="btn btn-verify fw-bold me-2" @click="verifyCustomer(customer.userId)">Verify</button>
+            <button class="btn btn-decline text-white fw-bold" @click="declineCustomer(customer.userId)">Decline</button>
           </td>
         </tr>
       </tbody>
@@ -32,40 +32,38 @@
 import axios from "../../../axios_auth";
 
 export default {
-    data () {
-        return {
-            customersFiltered: []
-        }
-    },
   props: {
-    customers: Array
-    },
-    computed: {
-    customersFiltered() {
+    customers: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    filteredCustomers() {
       return this.customers.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
     }
   },
-    methods: {
-    verifyCustomer(userID) {
-        axios.post(`/api/customers/approve/${userID}`)
-          .then((result) => {
-            console.log(result);
-            this.$emit('update');
-          })
-          .catch((error) => console.log(error));
+  methods: {
+    verifyCustomer(userId) {
+      axios.post(`/api/customers/approve/${userId}`)
+        .then((result) => {
+          console.log(result);
+          this.$emit('update');
+        })
+        .catch((error) => console.log(error));
     },
-      declineCustomer(userID) {
-                axios.post(`/api/customers/decline/${userID}`)
-          .then((result) => {
-            console.log(result);
-            this.$emit('update');
-          })
-          .catch((error) => console.log(error));
-      
+    declineCustomer(userId) {
+      axios.post(`/api/customers/decline/${userId}`)
+        .then((result) => {
+          console.log(result);
+          this.$emit('update');
+        })
+        .catch((error) => console.log(error));
     }
   }
 }
 </script>
+
 
 <style>
   .btn-verify{
