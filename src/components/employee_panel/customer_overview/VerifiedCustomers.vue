@@ -10,7 +10,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customers" :key="customer.userId">
+        <tr v-for="customer in customers" :key="customer.userId" @click="selectCustomer(customer)">
           <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
@@ -29,10 +29,11 @@ export default {
       required: true
     }
   },
-  computed: {
-    filteredCustomers() {
-      return this.customers.filter(customer => customer.accountApprovalStatus === 'VERIFIED');
+  methods: {
+    selectCustomer(customer) {
+      this.$emit('select-customer', customer);
     }
   }
 }
 </script>
+

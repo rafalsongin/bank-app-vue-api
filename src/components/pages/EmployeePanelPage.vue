@@ -1,13 +1,22 @@
 <template>
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center">
+    <div v-if="!isCustomerDetailsView" class="d-flex justify-content-between align-items-center">
       <button @click="toggleViewUnverified" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonTextUnverified }}</button>
       <button @click="toggleViewVerified" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonTextVerified }}</button>
       <input type="text" class="form-control me-2" placeholder="Search Customers" v-model="searchQuery">
     </div>
+    <div v-else class="d-flex justify-content-end align-items-center">
+      <button @click="goBackToVerified" class="btn btn-toggle-view fw-bolder me-3">Go Back</button>
+    </div>
     <!-- Pass customers as a prop to the dynamic component -->
     <div class="the-table"> 
-      <component :is="currentView" :customers="filteredCustomers" @update="update"/>
+      <component 
+        :is="currentView" 
+        :customers="filteredCustomers" 
+        :customer="selectedCustomer" 
+        @update="update" 
+        @select-customer="showCustomerDetails" 
+      />
     </div>
   </div>
 </template>
@@ -17,15 +26,24 @@ import { markRaw } from 'vue';
 import axios from "../../axios_auth";
 import UnverifiedCustomers from "../employee_panel/customer_overview/UnverifiedCustomers.vue";
 import AllCustomers from "../employee_panel/customer_overview/AllCustomers.vue";
+import CustomerDetails from "../employee_panel/customer_individual/CustomerDetails.vue";
 import VerifiedCustomers from "../employee_panel/customer_overview/VerifiedCustomers.vue";
 
 export default {
+  components: {
+    UnverifiedCustomers,
+    AllCustomers,
+    CustomerDetails,
+    VerifiedCustomers
+  },
   data() {
     return {
       currentView: markRaw(AllCustomers),
+      isCustomerDetailsView: false,
       toggleButtonTextUnverified: 'Show Unverified Customers',
       toggleButtonTextVerified: 'Show Verified Customers',
       customers: [],
+      selectedCustomer: null,
       searchQuery: '', // Search term input by user
     };
   },
@@ -82,26 +100,38 @@ export default {
         this.toggleButtonTextVerified = 'Show Verified Customers';
         this.toggleButtonTextUnverified = 'Show Unverified Customers';
       }
+    },
+    showCustomerDetails(customer) {
+      this.selectedCustomer = customer;
+      this.currentView = markRaw(CustomerDetails);
+      this.isCustomerDetailsView = true;
+    },
+    goBackToVerified() {
+      this.currentView = markRaw(VerifiedCustomers);
+      this.selectedCustomer = null;
+      this.isCustomerDetailsView = false;
     }
   }
 };
 </script>
 
 <style scoped>
-  .the-table {
-    background-color: #4D5061 ;
-    border-radius: 10px;
-  }
+.the-table {
+  background-color: #4D5061 ;
+  border-radius: 10px;
+}
 
-  .btn-toggle-view {
-    background-color: #829ECC;
-    border-radius: 10px;
-  }
-  .btn-toggle-view:focus {
-    outline: none;  /* Removes the outline */
-    box-shadow: none;  /* Optional: Removes any focus shadow, if there is one */
-  }
-  .btn-toggle-view:hover {
-    background-color: #6190d3;
-  }
+.btn-toggle-view {
+  background-color: #829ECC;
+  border-radius: 10px;
+}
+.btn-toggle-view:focus {
+  outline: none;  /* Removes the outline */
+  box-shadow: none;  /* Optional: Removes any focus shadow, if there is one */
+}
+.btn-toggle-view:hover {
+  background-color: #6190d3;
+}
 </style>
+
+
