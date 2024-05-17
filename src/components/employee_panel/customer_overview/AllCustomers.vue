@@ -11,10 +11,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customers" :key="customer.userID">
-          <td>{{ customer.userID }}</td>
+        <tr v-for="customer in customers" :key="customer.userId">
+          <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
-          <td>{{ customer.email }}</td>
+          <td>{{ customer.username }}</td>
           <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
         </tr>
