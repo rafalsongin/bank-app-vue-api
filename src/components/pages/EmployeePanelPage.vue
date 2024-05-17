@@ -74,7 +74,7 @@ export default {
     update() {
       axios.get("/api/customers")
         .then((result) => {
-          console.log(result);
+          console.log(result); // for debugging
           this.customers = result.data;
         })
         .catch((error) => console.log(error));
