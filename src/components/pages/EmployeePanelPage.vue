@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <div class="d-flex justify-content-between align-items-center">
-      <button @click="toggleView" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonText }}</button>
+      <button @click="toggleViewUnverified" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonTextUnverified }}</button>
+      <button @click="toggleViewVerified" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonTextVerified }}</button>
       <input type="text" class="form-control me-2" placeholder="Search Customers" v-model="searchQuery">
     </div>
     <!-- Pass customers as a prop to the dynamic component -->
@@ -16,14 +17,16 @@ import { markRaw } from 'vue';
 import axios from "../../axios_auth";
 import UnverifiedCustomers from "../employee_panel/customer_overview/UnverifiedCustomers.vue";
 import AllCustomers from "../employee_panel/customer_overview/AllCustomers.vue";
+import VerifiedCustomers from "../employee_panel/customer_overview/VerifiedCustomers.vue";
 
 export default {
   data() {
     return {
       currentView: markRaw(AllCustomers),
-      toggleButtonText: 'Show Unverified Customers',
+      toggleButtonTextUnverified: 'Show Unverified Customers',
+      toggleButtonTextVerified: 'Show Verified Customers',
       customers: [],
-      searchQuery: '' // Search term input by user
+      searchQuery: '', // Search term input by user
     };
   },
   mounted() {
@@ -31,15 +34,22 @@ export default {
   },
   computed: {
     filteredCustomers() {
-      if (!this.searchQuery) {
-        return this.customers; // return all customers if searchQuery is empty
+      let filtered = this.customers;
+      if (this.searchQuery) {
+        const searchTerm = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(customer => {
+          return Object.values(customer).some(value =>
+            String(value).toLowerCase().includes(searchTerm)
+          );
+        });
       }
-      const searchTerm = this.searchQuery.toLowerCase();
-      return this.customers.filter(customer => {
-        return Object.values(customer).some(value =>
-          String(value).toLowerCase().includes(searchTerm)
-        );
-      });
+      if (this.currentView === UnverifiedCustomers) {
+        return filtered.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
+      }
+      if (this.currentView === VerifiedCustomers) {
+        return filtered.filter(customer => customer.accountApprovalStatus === 'VERIFIED');
+      }
+      return filtered; // Return all customers for AllCustomers view
     }
   },
   methods: {
@@ -51,19 +61,31 @@ export default {
         })
         .catch((error) => console.log(error));
     },
-    toggleView() {
-      if (this.currentView === AllCustomers) {
+    toggleViewUnverified() {
+      if (this.currentView !== UnverifiedCustomers) {
         this.currentView = markRaw(UnverifiedCustomers);
-        this.toggleButtonText = 'Show All Customers';
+        this.toggleButtonTextUnverified = 'Show All Customers';
+        this.toggleButtonTextVerified = 'Show Verified Customers';
       } else {
         this.currentView = markRaw(AllCustomers);
-        this.toggleButtonText = 'Show Unverified Customers';
+        this.toggleButtonTextUnverified = 'Show Unverified Customers';
+        this.toggleButtonTextVerified = 'Show Verified Customers';
+      }
+    },
+    toggleViewVerified() {
+      if (this.currentView !== VerifiedCustomers) {
+        this.currentView = markRaw(VerifiedCustomers);
+        this.toggleButtonTextVerified = 'Show All Customers';
+        this.toggleButtonTextUnverified = 'Show Unverified Customers';
+      } else {
+        this.currentView = markRaw(AllCustomers);
+        this.toggleButtonTextVerified = 'Show Verified Customers';
+        this.toggleButtonTextUnverified = 'Show Unverified Customers';
       }
     }
   }
 };
 </script>
-
 
 <style scoped>
   .the-table {
