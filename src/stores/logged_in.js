@@ -18,11 +18,10 @@ export const useLoggedInStore = defineStore('logged_in', {
                 })
                     .then((response) => {
                         this.username = username; // Set the username
-                        this.token = response.data.token; // Set the token
-                        localStorage.setItem('token', response.data.token);
+                        this.token = response.data; // Set the token
+                        localStorage.setItem('token', response.data);
                         localStorage.setItem('username', username);
-                        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-                        resolve(response.data); // resolve with data for further processing if needed
+                        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
                     })
                     .catch((error) => {
                         console.error("Login failed with error:", error);

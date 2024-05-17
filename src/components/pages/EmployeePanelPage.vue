@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     update() {
-      axios.get("/customers")
+      axios.get("/api/customers")
         .then((result) => {
           console.log(result);
           this.customers = result.data;
