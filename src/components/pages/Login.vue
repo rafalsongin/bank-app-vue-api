@@ -18,8 +18,10 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useLoggedInStore } from '@/stores/logged_in';
+import {ref} from 'vue';
+import {useLoggedInStore} from '@/stores/logged_in';
+import Swal from 'sweetalert2';
+import router from "@/router";
 
 export default {
   setup() {
@@ -32,13 +34,31 @@ export default {
         await store.login(username.value, password.value);
         if (store.isLoggedIn) {
           console.log("Login Successful");
-          alert("Login successful");
-        } else {
-          console.log("Login Failed");
-          alert("Login failed");
+          Swal.fire({
+            icon: 'success',
+            title: 'Login successful',
+            showConfirmButton: false,
+            timer: 1500
+          }).then(() => {
+            router.push('/'); // Redirect to homepage after success
+          });
         }
       } catch (error) {
-        alert("Login Failed: " + error.message);
+        if (error.response && error.response.status === 401) {
+          console.log("Login credentials are incorrect");
+          Swal.fire({
+            icon: 'error',
+            title: 'Login failed',
+            text: 'Login credentials are incorrect.'
+          });
+        } else {
+          console.log("Login Failed: " + (error.response ? error.response.data.message : error.message));
+          Swal.fire({
+            icon: 'error',
+            title: 'Login failed',
+            text: `An error occurred: ${error.response ? error.response.data.message : error.message}`
+          });
+        }
       }
     };
 
