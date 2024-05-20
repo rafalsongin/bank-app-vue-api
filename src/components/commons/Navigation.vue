@@ -29,17 +29,21 @@
 
 <script>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router'; // Import useRouter
 import { useLoggedInStore } from '@/stores/logged_in';
 
 export default {
   name: "Navigation",
   setup() {
     const store = useLoggedInStore();
+    const router = useRouter(); // Initialize router
+
     const isLoggedIn = computed(() => store.isLoggedIn);
     const userRole = computed(() => store.role);
 
     const logout = () => {
       store.logout();
+      router.push('/'); // Redirect to homepage after logout
     };
 
     return {
