@@ -18,9 +18,9 @@ const router = createRouter({
     { path: '/products', component: ProductList },
     { path: '/login', component: Login },
     { path: '/createproduct', component: CreateProduct },
-    { path: '/editproduct/:id', component: EditProduct, props: true },
-    { path: '/employeepanel', component: EmployeePanelPage },
-    { path: '/customerpanel/:id', component: CustomerPanelPage, props: true },
+    { path: '/editproduct/:id', component: EditProduct, props: true, meta: { requiresAuth: true, role: 'Employee' } },
+    { path: '/employeepanel', component: EmployeePanelPage, meta: { requiresAuth: true, role: 'Employee' } },
+    { path: '/customerpanel/:id', component: CustomerPanelPage, props: true, meta: { requiresAuth: true, role: 'Customer' } },
     { path: '/register', component: Register }
   ]
 })
