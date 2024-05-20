@@ -9,7 +9,7 @@
         </li>
         <li class="nav-item">
           <router-link to="/login" class="nav-link" active-class="active"
-          >Login</router-link
+            >Login</router-link
           >
         </li>
         <li class="nav-item">
@@ -18,13 +18,24 @@
           >
         </li>
         <li class="nav-item">
-          <router-link to="/employeepanel" class="nav-link" active-class="active"
+          <router-link
+            to="/employeepanel"
+            class="nav-link"
+            active-class="active"
             >Customers</router-link
           >
         </li>
         <li class="nav-item">
           <router-link to="/register" class="nav-link" active-class="active"
-          >Customer registration</router-link
+            >Customer registration</router-link
+          >
+        </li>
+        <li class="nav-item">
+          <router-link
+            to="/transferfunds"
+            class="nav-link"
+            active-class="active"
+            >Transfer Funds</router-link
           >
         </li>
       </ul>
@@ -39,7 +50,7 @@ export default {
 </script>
 
 <style scoped>
-.navbar{
-  background-color: #30323D;
+.navbar {
+  background-color: #30323d;
 }
 </style>
