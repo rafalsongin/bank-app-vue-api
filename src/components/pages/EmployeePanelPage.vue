@@ -1,13 +1,12 @@
-
 <template>
-    <div class="container">
+  <div class="container">
     <div class="d-flex justify-content-between align-items-center">
       <button @click="toggleView" class="btn btn-toggle-view fw-bolder me-3">{{ toggleButtonText }}</button>
       <input type="text" class="form-control me-2" placeholder="Search Customers" v-model="searchQuery">
     </div>
     <!-- Pass customers as a prop to the dynamic component -->
     <div class="the-table"> 
-    <component :is="currentView" :customers="filteredCustomers" @update="update"/>
+      <component :is="currentView" :customers="filteredCustomers" @update="update"/>
     </div>
   </div>
 </template>
@@ -21,10 +20,10 @@ import AllCustomers from "../employee_panel/customer_overview/AllCustomers.vue";
 export default {
   data() {
     return {
-      currentView:  markRaw(AllCustomers),
+      currentView: markRaw(AllCustomers),
       toggleButtonText: 'Show Unverified Customers',
       customers: [],
-       searchQuery: '', // Search term input by user
+      searchQuery: '' // Search term input by user
     };
   },
   mounted() {
@@ -61,9 +60,10 @@ export default {
         this.toggleButtonText = 'Show Unverified Customers';
       }
     }
-  },
+  }
 };
 </script>
+
 
 <style scoped>
   .the-table {
