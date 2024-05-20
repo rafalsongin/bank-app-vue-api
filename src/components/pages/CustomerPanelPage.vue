@@ -1,5 +1,5 @@
 <template>
-  <div v-if="customerStatus != 'DECLINED'" class="profile-page">
+  <div class="profile-page">
     <div class="d-flex">
       <div class="nav-panel p-4 rounded-start">
         <CustomerPanelNavigation
@@ -9,33 +9,39 @@
       <div class="content-panel rounded-end flex-grow-1">
         <div v-if="currentPanel === 'Overview'">
           <CustomerPanelOverview
-              :currentUser="currentUser" :customerStatus="customerStatus" />
+              :currentCustomer="currentCustomer" />
         </div>
-        <div v-else-if="currentPanel === 'Details'">
-          <CustomerPanelDetails
-              :currentUser="currentUser" />
+        <div v-else-if="currentPanel === 'Accounts'">
+          <CustomerPanelAccounts
+              :currentCustomer="currentCustomer"/>
         </div>
-        <div v-else-if="currentPanel === 'Transactions'">
-          <CustomerPanelTransactions />
+        <div v-else-if="currentPanel === 'Create Transaction'">
+          <CustomerPanelNewTransaction
+              :currentCustomer="currentCustomer"
+              @updateCustomerAccountData="refreshCustomerAccounts"/>
         </div>
         <div v-else-if="currentPanel === 'Settings'">
-          <CustomerPanelSettings />
+          <CustomerPanelSettings
+              :currentCustomer="currentCustomer" />
         </div>
       </div>
     </div>
   </div>
-  <div v-else>
-    <CustomerPanelSuspended />
-  </div>
+  <!--  <div>
+      <CustomerPanelSuspended />
+    </div>-->
 </template>
 
 <script>
-import CustomerPanelNavigation from "@/components/customer_panel/CustomerPanelNavigation.vue";
-import CustomerPanelOverview from "@/components/customer_panel/CustomerPanelOverview.vue";
-import CustomerPanelDetails from "@/components/customer_panel/CustomerPanelDetails.vue";
-import CustomerPanelTransactions from "@/components/customer_panel/CustomerPanelTransactions.vue";
-import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
 import CustomerPanelSuspended from "@/components/customer_panel/CustomerPanelSuspended.vue";
+import CustomerPanelNavigation from "@/components/customer_panel/CustomerPanelNavigation.vue";
+
+import CustomerPanelOverview from "@/components/customer_panel/CustomerPanelOverview.vue";
+import CustomerPanelAccounts from "@/components/customer_panel/CustomerPanelAccounts.vue";
+import CustomerPanelNewTransaction from "@/components/customer_panel/CustomerPanelNewTransaction.vue";
+
+import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
+
 import axios from "@/axios_auth";
 
 export default {
@@ -43,15 +49,26 @@ export default {
     CustomerPanelSuspended,
     CustomerPanelNavigation,
     CustomerPanelOverview,
-    CustomerPanelDetails,
-    CustomerPanelTransactions,
+    CustomerPanelAccounts,
+    CustomerPanelNewTransaction,
     CustomerPanelSettings
   },
   data() {
     return {
       currentPanel: "Overview",
-      currentUser: null,
-      customerStatus: null,
+      currentCustomer:
+          {
+            userId: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            bankId: "",
+            userRole: 0,
+            phoneNumber: "",
+            accountApprovalStatus: "",
+            transactionLimit: null,
+            accounts: []
+          },
       isNavigationDisabled: true,
       panelData: {}
     };
@@ -60,31 +77,35 @@ export default {
     async fetchCustomerDetails(id) {
       try {
         const response = await axios.get(`/api/customers/${id}`);
+
         if (response.status !== 200 || !response.data) {
           throw new Error("User was not found!");
         }
-        this.checkAccountStatus(response.data);
-        this.currentUser = response.data;
+
+        this.currentCustomer = response.data;
+        this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
+
+        this.refreshCustomerAccounts();
       } catch (error) {
         console.error('Error fetching customer details:', error);
         this.$router.push("/404");
       }
     },
-    checkAccountStatus(data) {
-      const accountStatus = data.accountApprovalStatus || "UNKNOWN";
-      switch (accountStatus) {
-        case "APPROVED":
-          this.customerStatus = "APPROVED";
-          this.isNavigationDisabled = false;
-          break;
-        case "UNVERIFIED":
-          this.customerStatus = "UNVERIFIED";
-          break;
-        case "DECLINED":
-          this.customerStatus = "DECLINED";
-          break;
-        default:
-          throw new Error("Unknown customer status!");
+    refreshCustomerAccounts(){
+      this.fetchCustomerAccounts(this.currentCustomer.userId)
+    },
+    async fetchCustomerAccounts(id) {
+      try {
+        const response = await axios.get(`/api/accounts/customer/${id}`);
+
+        if (response.status !== 200) {
+          throw new Error("Customer accounts were not found!");
+        }
+
+        this.currentCustomer.accounts = response.data;
+      } catch (error) {
+        console.error('Error fetching customer accounts:', error);
+        this.$router.push("/404");
       }
     },
     selectPanel(panel) {
@@ -92,7 +113,7 @@ export default {
     },
     isCurrentPanel(panel) {
       return panel === this.currentPanel ? 'current' : '';
-    }
+    },
   },
   created() {
     const customerId = this.$route.params.id;
@@ -104,7 +125,7 @@ export default {
 <style scoped>
 .profile-page {
   margin: 0 auto;
-  width: 80%;
+  width: 90%;
   border: 3px solid black;
   border-radius: 10px;
 }

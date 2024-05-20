@@ -1,10 +1,11 @@
 <template>
   <div>
-    <h2>
-      Bank Logo
-    </h2>
+    <header>
+      <h2>Bank Logo</h2>
+    </header>
     <ul>
-      <li v-for="panel in panels" :key="panel" @click="selectPanel(panel)"
+      <li v-for="panel in panels"
+          :key="panel" @click="selectPanel(panel)"
           :class="{ 'current': isCurrentPanel(panel), 'disabled': isNavigationDisabled }">
         {{ panel }}
       </li>
@@ -20,7 +21,7 @@ export default {
   },
   data() {
     return {
-      panels: ['Overview', 'Details' ,'Transactions', 'Settings']
+      panels: ['Overview', 'Accounts', 'Create Transaction', 'Settings']
     };
   },
   methods: {
