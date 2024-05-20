@@ -8,7 +8,7 @@
         <li class="nav-item">
           <router-link to="/products" class="nav-link" active-class="active">Products</router-link>
         </li>
-        <li class="nav-item" v-if="userRole === 'Employee'">
+        <li class="nav-item" v-if="userRole === 'EMPLOYEE'">
           <router-link to="/employeepanel" class="nav-link" active-class="active">Customers</router-link>
         </li>
       </ul>
