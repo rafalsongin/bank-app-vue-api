@@ -38,6 +38,14 @@
             >Transfer Funds</router-link
           >
         </li>
+        <li class="nav-item">
+          <router-link
+            to="/alltransactions"
+            class="nav-link"
+            active-class="active"
+            >All Transactions</router-link
+          >
+        </li>
       </ul>
     </div>
   </nav>

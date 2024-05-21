@@ -10,6 +10,7 @@ import Login from '../components/pages/Login.vue';
 import TransferFunds from '../components/pages/TransferFunds.vue';
 import EmployeePanelPage from "../components/pages/EmployeePanelPage.vue";
 import CustomerPanelPage from "@/components/pages/CustomerPanelPage.vue";
+import AllTransactions from "../components/pages/AllTransactions.vue"
 
 
 const router = createRouter({
@@ -25,6 +26,7 @@ const router = createRouter({
     { path: '/customerpanel/:id', component: CustomerPanelPage, props: true },
     { path: '/register', component: Register },
     { path: '/transferfunds', component: TransferFunds },
+    {path: '/alltransactions', component: AllTransactions},
   ]
 })
 
