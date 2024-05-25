@@ -9,6 +9,8 @@ import Register from '../components/pages/Register.vue';
 import Login from '../components/pages/Login.vue';
 import EmployeePanelPage from "../components/pages/EmployeePanelPage.vue";
 import CustomerPanelPage from "@/components/pages/CustomerPanelPage.vue";
+import AtmPanel from "@/components/atm/views/AtmPanel.vue";
+import TransactionMenu from "@/components/atm/components/TransactionMenu.vue"; 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +23,9 @@ const router = createRouter({
     { path: '/editproduct/:id', component: EditProduct, props: true, meta: { requiresAuth: true, role: 'Employee' } },
     { path: '/employeepanel', component: EmployeePanelPage, meta: { requiresAuth: true, role: 'Employee' } },
     { path: '/customerpanel/:id', component: CustomerPanelPage, props: true, meta: { requiresAuth: true, role: 'Customer' } },
-    { path: '/register', component: Register }
+    { path: '/register', component: Register },
+    { path: '/atm', component: AtmPanel }, // Added ATM panel route
+    { path: '/:catchAll(.*)', redirect: '/404' } // Redirect unknown routes to 404
   ]
 })
 
