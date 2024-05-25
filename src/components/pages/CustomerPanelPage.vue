@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-page">
+  <div v-if="currentCustomer.accountApprovalStatus == 'VERIFIED' || currentCustomer.accountApprovalStatus == 'UNVERIFIED'" class="profile-page">
     <div class="d-flex">
       <div class="nav-panel p-4 rounded-start">
         <CustomerPanelNavigation
@@ -27,9 +27,12 @@
       </div>
     </div>
   </div>
-  <!--  <div>
-      <CustomerPanelSuspended />
-    </div>-->
+  <div v-else-if="currentCustomer.accountApprovalStatus == 'DECLINED'">
+    <CustomerPanelSuspended />
+  </div>
+  <div v-else>
+
+  </div>
 </template>
 
 <script>
@@ -63,32 +66,33 @@ export default {
             firstName: "",
             lastName: "",
             bankId: "",
-            userRole: 0,
+            userRole: "",
             phoneNumber: "",
             accountApprovalStatus: "",
             transactionLimit: null,
-            accounts: []
+            accounts: [],
+            bsn: "",
+            username: "",
+            password: "",
           },
       isNavigationDisabled: true,
       panelData: {}
     };
   },
   methods: {
-    async fetchCustomerDetails(id) {
+    async fetchCustomerDetails(email) {
       try {
-        const response = await axios.get(`/api/customers/${id}`);
+        const response = await axios.get(`http://localhost:8080/api/customers/email/${email}`);
 
-        if (response.status !== 200 || !response.data) {
+        if (response.status !== 200) {
           throw new Error("User was not found!");
         }
 
         this.currentCustomer = response.data;
         this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
-
-        this.refreshCustomerAccounts();
       } catch (error) {
-        console.error('Error fetching customer details:', error);
-        this.$router.push("/404");
+        console.error('Error fetching customer details:', error.message);
+        /* this.$router.push("/404"); */
       }
     },
     refreshCustomerAccounts(){
@@ -105,7 +109,7 @@ export default {
         this.currentCustomer.accounts = response.data;
       } catch (error) {
         console.error('Error fetching customer accounts:', error);
-        this.$router.push("/404");
+        /*this.$router.push("/404");*/
       }
     },
     selectPanel(panel) {
@@ -114,10 +118,21 @@ export default {
     isCurrentPanel(panel) {
       return panel === this.currentPanel ? 'current' : '';
     },
+    checkAccountStatus(status){
+      switch (status){
+        case "VERIFIED":
+          this.isNavigationDisabled = false;
+          this.fetchCustomerAccounts(this.currentCustomer.userId);
+          break;
+        default:
+          this.isNavigationDisabled =true;
+          break;
+      }
+    }
   },
   created() {
-    const customerId = this.$route.params.id;
-    this.fetchCustomerDetails(customerId);
+    const email = this.$route.params.id;
+    this.fetchCustomerDetails(email);
   }
 };
 </script>

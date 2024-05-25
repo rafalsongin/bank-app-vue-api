@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-export const useTransactionStore = defineStore('transaction', {
+export const useTransactionCreateStore = defineStore('transaction', {
     state: () => ({
         transaction: {
             transaction_type: 'Internal Transaction',
             amount: 0,
-            from_account: '',
-            to_account: '',
-            initiated_by_account: '',
+            from_account: '', // should be IBAN
+            to_account: '', // should be IBAN
+            initiated_by_account: '', // for now, it takes account_id
         },
     }),
     actions: {
@@ -43,6 +43,6 @@ export const useTransactionStore = defineStore('transaction', {
                 to_account: '',
                 initiated_by_account: '',
             };
-        }
+        },
     }
 });
