@@ -11,9 +11,15 @@
       </p>
       <p class="text-lg mb-2"><strong>Email:</strong> {{ customer.email }}</p>
       <p class="text-lg mb-2">
-        <strong>Customer Account Status:</strong> {{ customer.accountApprovalStatus }}
+        <strong>Customer Account Status:</strong>
+        {{ customer.accountApprovalStatus }}
       </p>
-      <button @click="closeCustomerAccount" class="btn mb-4 fw-bold rounded shadow-md ">Close Customer Account</button>
+      <button
+        @click="closeCustomerAccount"
+        class="btn mb-4 fw-bold rounded shadow-md"
+      >
+        Close Customer Account
+      </button>
 
       <h3 class="text-3xl font-semibold mb-4">Accounts</h3>
     </div>
@@ -85,7 +91,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in transactions" :key="transaction.transaction_id">
+            <tr
+              v-for="transaction in transactions"
+              :key="transaction.transaction_id"
+            >
               <td>{{ formatDate(transaction.timestamp) }}</td>
               <td>{{ transaction.transaction_type }}</td>
               <td>{{ formatCurrency(transaction.amount) }}</td>
@@ -104,7 +113,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -155,20 +163,28 @@ export default {
         });
     },
     formatCurrency(value) {
-      return new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(value);
+      return new Intl.NumberFormat("en-IE", {
+        style: "currency",
+        currency: "EUR",
+      }).format(value);
     },
     formatDate(dateString) {
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
+      const options = {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      return new Date(dateString).toLocaleDateString("en-GB", options);
     },
     closeCustomerAccount() {
       axios
         .put(`api/customers/closeAccount/${this.customer.userId}`)
-          .then((response) => {
-            console.log("Customer account closed successfully:", response.data);
-            alert("Customer account closed successfully");
-            this.$emit('update');
-            this.$emit('go-back');
+        .then((response) => {
+          this.$emit("update");
+          console.log("Customer account closed successfully:", response.data);
+          alert("Customer account closed successfully");
         })
         .catch((error) => {
           console.error("Error closing customer account:", error);
@@ -224,7 +240,6 @@ button {
 button:hover {
   background-color: #f8da8a;
 }
-
 
 .container_account_details {
   display: flex;
