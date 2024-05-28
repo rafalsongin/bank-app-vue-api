@@ -16,7 +16,7 @@
           <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
-          <td>{{ customer.email }}</td>
+          <td>{{ customer.username }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
             <button class="btn btn-verify fw-bold me-2" @click="verifyCustomer(customer.userId)">Verify</button>

@@ -21,17 +21,16 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import Swal from 'sweetalert2';
-import router from "@/router";
 
 export default {
-  setup() {
+  setup(props, { emit }) {
     const username = ref('');
     const password = ref('');
     const store = useAuthStore();
 
     const login = async () => {
       try {
-        await store.login(username.value, password.value);
+        await store.loginAtm(username.value, password.value);
         if (store.isLoggedIn) {
           Swal.fire({
             icon: 'success',
@@ -39,7 +38,7 @@ export default {
             showConfirmButton: false,
             timer: 1500
           }).then(() => {
-            router.push('/');
+            emit('validate-login');
           });
         }
       } catch (error) {
@@ -67,3 +66,22 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+</style>
