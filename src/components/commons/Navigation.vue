@@ -77,6 +77,12 @@ export default {
       isAtmLogin,
       logout
     };
+  },
+  computed: {
+    profileLink() {
+      const username = localStorage.getItem('username');
+      return `/customerpanel/${username}`;
+    }
   }
 };
 </script>
