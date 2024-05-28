@@ -27,6 +27,9 @@
           <li class="nav-item d-flex align-items-center" v-if="isLoggedIn">
             <span class="navbar-text me-3">{{ userEmail }} ({{ userRole }})</span>
           </li>
+          <li class="nav-item" v-if="isLoggedIn && userRole === 'CUSTOMER'">
+            <router-link :to="profileLink" class="nav-link" active-class="active">Profile</router-link>
+          </li>
           <li class="nav-item" v-if="isLoggedIn">
             <button @click="logout" class="btn btn-link nav-link">Logout</button>
           </li>

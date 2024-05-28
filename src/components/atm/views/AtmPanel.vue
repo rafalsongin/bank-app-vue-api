@@ -11,6 +11,12 @@
       <div v-if="currentView === 'balance'">
         <BalanceView :balance="balance" @go-back="goBack" />
       </div>
+      <div v-if="currentView === 'deposit'">
+        <DepositView @go-back="goBack" />
+      </div>
+      <div v-if="currentView === 'withdraw'">
+        <WithdrawView @go-back="goBack" />
+      </div>
     </div>
   </div>
 </template>
@@ -21,6 +27,8 @@ import axios from 'axios';
 import AtmLogin from '../components/AtmLogin.vue';
 import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
+import DepositView from '../components/DepositView.vue';
+import WithdrawView from '../components/WithdrawView.vue';
 import { useAuthStore } from '@/stores/authStore';
 
 export default {
@@ -28,10 +36,13 @@ export default {
   components: {
     AtmLogin,
     TransactionMenu,
-    BalanceView
+    BalanceView,
+    DepositView,
+    WithdrawView
   },
   setup() {
     const currentView = ref('login');
+    const balance = ref(0);
     const store = useAuthStore();
 
     const validateLogin = () => {
@@ -41,18 +52,22 @@ export default {
     const selectTransaction = async (transaction) => {
       if (transaction === 'balance') {
         try {
-          const response = await axios.get('http://your-api-endpoint/balance', {
+          const response = await axios.get('http://localhost:8080/atm/balance', {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
           });
-          balance.value = response.data.balance;
+          balance.value = response.data !== undefined ? response.data : 0;
           currentView.value = 'balance';
         } catch (error) {
           console.error('Error fetching balance:', error);
+          balance.value = 0; // Ensure balance is set to a default value if an error occurs
         }
+      } else if (transaction === 'deposit') {
+        currentView.value = 'deposit';
+      } else if (transaction === 'withdraw') {
+        currentView.value = 'withdraw';
       }
-      // Handle other transactions (withdraw, deposit) here
     };
 
     const goBack = () => {
@@ -68,6 +83,7 @@ export default {
 
     return {
       currentView,
+      balance,
       validateLogin,
       selectTransaction,
       goBack
