@@ -32,6 +32,11 @@
             >Customer Registration</router-link
           >
         </li>
+        <li class="nav-item" v-if="isLoggedIn && userRole === 'CUSTOMER'">
+          <router-link :to="profileLink" class="nav-link" active-class="active"
+            >Profile</router-link
+          >
+        </li>
         <li class="nav-item" v-if="isLoggedIn">
           <button @click="logout" class="btn btn-link nav-link">Logout</button>
         </li>
@@ -80,6 +85,12 @@ export default {
       userRole,
       logout,
     };
+  },
+  computed: {
+    profileLink() {
+      const username = localStorage.getItem("username");
+      return `/customerpanel/${username}`;
+    },
   },
 };
 </script>
