@@ -1,5 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
+import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../components/pages/Home.vue';
 import PageNotFound from "@/components/pages/PageNotFound.vue";
 import ProductList from '../components/products/ProductList.vue';
@@ -11,7 +10,8 @@ import TransferFunds from '../components/pages/TransferFunds.vue';
 import EmployeePanelPage from "../components/pages/EmployeePanelPage.vue";
 import CustomerPanelPage from "@/components/pages/CustomerPanelPage.vue";
 import AtmPanel from "@/components/atm/views/AtmPanel.vue";
-import AllTransactions from "../components/pages/AllTransactions.vue"
+import AllTransactions from "../components/pages/AllTransactions.vue";
+import { useAuthStore } from '@/stores/authStore';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +30,18 @@ const router = createRouter({
     { path: '/atm', component: AtmPanel }, // Added ATM panel route
     { path: '/:catchAll(.*)', redirect: '/404' } // Redirect unknown routes to 404
   ]
-})
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  const store = useAuthStore();
+  const isLoggedIn = store.isLoggedIn;
+  const userRole = store.role || localStorage.getItem('role');
+
+  if (isLoggedIn && userRole === 'ATM' && to.path !== '/atm') {
+    next('/atm'); // Redirect to /atm if logged in as ATM and trying to access other routes
+  } else {
+    next();
+  }
+});
+
+export default router;

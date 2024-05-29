@@ -1,5 +1,5 @@
 <template>
-  <div class="container h-100 d-flex justify-content-center align-items-center">
+  <div class="container h-100 d-flex justify-content-center align-items-start">
     <div class="atm-panel card shadow p-4">
       <h1 class="text-center mb-4">ATM Panel</h1>
       <div v-if="currentView === 'login'">
@@ -9,13 +9,13 @@
         <TransactionMenu @select-transaction="selectTransaction" />
       </div>
       <div v-if="currentView === 'balance'">
-        <BalanceView :balance="balance" @go-back="goBack" />
+        <BalanceView @go-back="goBack" />
       </div>
       <div v-if="currentView === 'deposit'">
-        <DepositView @go-back="goBack" />
+        <DepositView @go-back="goBack" @update-balance="updateBalance" />
       </div>
       <div v-if="currentView === 'withdraw'">
-        <WithdrawView @go-back="goBack" />
+        <WithdrawView @go-back="goBack" @update-balance="updateBalance" />
       </div>
     </div>
   </div>
@@ -23,7 +23,6 @@
 
 <script>
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
 import AtmLogin from '../components/AtmLogin.vue';
 import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
@@ -42,36 +41,27 @@ export default {
   },
   setup() {
     const currentView = ref('login');
-    const balance = ref(0);
     const store = useAuthStore();
 
     const validateLogin = () => {
       currentView.value = 'menu';
     };
 
-    const selectTransaction = async (transaction) => {
-      if (transaction === 'balance') {
-        try {
-          const response = await axios.get('http://localhost:8080/atm/balance', {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          balance.value = response.data !== undefined ? response.data : 0;
-          currentView.value = 'balance';
-        } catch (error) {
-          console.error('Error fetching balance:', error);
-          balance.value = 0; // Ensure balance is set to a default value if an error occurs
-        }
-      } else if (transaction === 'deposit') {
-        currentView.value = 'deposit';
-      } else if (transaction === 'withdraw') {
-        currentView.value = 'withdraw';
-      }
+    const selectTransaction = (transaction) => {
+      currentView.value = transaction;
     };
 
     const goBack = () => {
       currentView.value = 'menu';
+    };
+
+    const updateBalance = () => {
+      if (currentView.value === 'balance') {
+        currentView.value = 'menu';
+        setTimeout(() => {
+          currentView.value = 'balance';
+        }, 0);
+      }
     };
 
     onMounted(() => {
@@ -83,10 +73,10 @@ export default {
 
     return {
       currentView,
-      balance,
       validateLogin,
       selectTransaction,
-      goBack
+      goBack,
+      updateBalance
     };
   }
 }
@@ -108,5 +98,6 @@ export default {
 
 h1 {
   font-size: 2rem;
+  color: #30323d;
 }
 </style>

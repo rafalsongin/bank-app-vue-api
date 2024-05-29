@@ -83,5 +83,37 @@ form {
 
 h2 {
   margin-bottom: 20px;
+  color: #30323d;
+}
+
+label {
+  color: #4D5061;
+  font-weight: bold;
+}
+
+.form-control {
+  border: 2px solid #E8C547;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.form-control:focus {
+  border-color: #E8C547;
+  box-shadow: 0 0 5px rgba(232, 197, 71, 0.5);
+}
+
+.btn-primary {
+  background-color: #E8C547;
+  border: none;
+  color: #30323d;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #d4ae42;
 }
 </style>
