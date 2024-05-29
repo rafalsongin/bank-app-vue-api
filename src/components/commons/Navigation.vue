@@ -40,7 +40,7 @@
         <li class="nav-item" v-if="isLoggedIn">
           <button @click="logout" class="btn btn-link nav-link">Logout</button>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="userRole === 'EMPLOYEE'">
           <router-link
             to="/transferfunds"
             class="nav-link"
@@ -48,7 +48,7 @@
             >Transfer Funds</router-link
           >
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="userRole === 'EMPLOYEE'">
           <router-link
             to="/alltransactions"
             class="nav-link"
