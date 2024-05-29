@@ -1,6 +1,13 @@
 <template>
   <nav class="navbar navbar-expand-md navbar-dark mb-4">
     <div class="container-fluid">
+      <router-link to="/" class="navbar-brand">
+        <img
+          src="/src/assets/images/icons/iconRound.png"
+          alt="Logo"
+          class="logo"
+        />
+      </router-link>
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
         <li class="nav-item">
           <router-link to="/" class="nav-link" active-class="active"
@@ -102,5 +109,11 @@ export default {
 
 .navbar-nav.ms-auto {
   margin-left: auto;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
 }
 </style>

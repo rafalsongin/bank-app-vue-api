@@ -23,7 +23,7 @@
         v-model="searchQuery"
       />
     </div>
-    <div v-else class="d-flex justify-content-end align-items-center">
+    <div v-else class="d-flex justify-content align-items-center">
       <button
         @click="goBackToVerified"
         class="btn btn-toggle-view fw-bolder me-3"
@@ -156,8 +156,9 @@ export default {
 }
 
 .btn-toggle-view {
-  background-color: #829ecc;
+  background-color: #5c80bc;
   border-radius: 10px;
+  color: white;
 }
 .btn-toggle-view:focus {
   outline: none; /* Removes the outline */

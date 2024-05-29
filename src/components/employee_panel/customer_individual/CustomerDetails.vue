@@ -211,13 +211,12 @@ export default {
 .customer-details {
   border: 1px solid #ccc;
   border-radius: 10px;
-  background-color: #CDD1C4;
-  
+  background-color: rgb(255, 255, 255);
   margin-top: 10px;
 }
 
 .account-details {
-  background-color: #4D5061;
+  background-color: #4d5061;
   border: 1px, solid rgb(0, 0, 0);
   border-radius: 10px;
   display: flex;
