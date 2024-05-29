@@ -14,10 +14,10 @@
           <li class="nav-item" v-if="userRole === 'EMPLOYEE' && !isAtmLogin">
             <router-link to="/employeepanel" class="nav-link" active-class="active">Customers</router-link>
           </li>
-          <li class="nav-item" v-if="userRole === 'CUSTOMER' && !isAtmLogin">
+          <li class="nav-item" v-if="userRole === 'EMPLOYEE' && !isAtmLogin">
             <router-link to="/transferfunds" class="nav-link" active-class="active">Transfer Funds</router-link>
           </li>
-          <li class="nav-item" v-if="userRole === 'CUSTOMER' && !isAtmLogin">
+          <li class="nav-item" v-if="userRole === 'EMPLOYEE' && !isAtmLogin">
             <router-link to="/alltransactions" class="nav-link" active-class="active">All Transactions</router-link>
           </li>
         </ul>
