@@ -19,6 +19,7 @@ export const useTransactionFetchStore = defineStore('transactions', {
                         'Authorization': `Bearer ${token}`,
                     }
                 });
+                console.log(response);
 
                 if (response.status === 200 || response.status === 201) {
                     this.transactions = response.data;

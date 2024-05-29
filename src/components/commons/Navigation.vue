@@ -2,7 +2,8 @@
   <nav class="navbar navbar-expand-md navbar-dark mb-4">
     <div class="container-fluid">
       <router-link to="/" class="navbar-brand">BankApp</router-link>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -10,11 +11,14 @@
           <li class="nav-item" v-if="!isAtmLogin">
             <router-link to="/" class="nav-link" active-class="active">Home</router-link>
           </li>
-          <li class="nav-item" v-if="!isAtmLogin">
-            <router-link to="/products" class="nav-link" active-class="active">Products</router-link>
-          </li>
           <li class="nav-item" v-if="userRole === 'EMPLOYEE' && !isAtmLogin">
             <router-link to="/employeepanel" class="nav-link" active-class="active">Customers</router-link>
+          </li>
+          <li class="nav-item" v-if="userRole === 'CUSTOMER' && !isAtmLogin">
+            <router-link to="/transferfunds" class="nav-link" active-class="active">Transfer Funds</router-link>
+          </li>
+          <li class="nav-item" v-if="userRole === 'CUSTOMER' && !isAtmLogin">
+            <router-link to="/alltransactions" class="nav-link" active-class="active">All Transactions</router-link>
           </li>
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-md-0">
@@ -43,9 +47,9 @@
 </template>
 
 <script>
-import { computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/authStore';
+import {computed, watch} from 'vue';
+import {useRouter} from 'vue-router';
+import {useAuthStore} from '@/stores/authStore';
 
 export default {
   name: "Navigation",
@@ -60,7 +64,7 @@ export default {
 
     const logout = () => {
       store.logout();
-      router.push('/'); // Redirect to homepage after logout
+      router.push("/"); // Redirect to homepage after logout
     };
 
     // Watch for changes in the store to update localStorage
@@ -83,16 +87,16 @@ export default {
   },
   computed: {
     profileLink() {
-      const username = localStorage.getItem('username');
+      const username = localStorage.getItem("username");
       return `/customerpanel/${username}`;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
 .navbar {
-  background-color: #30323D;
+  background-color: #30323d;
 }
 
 .navbar-nav.ms-auto {
