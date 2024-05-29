@@ -138,7 +138,7 @@ export default {
   methods: {
     fetchAccounts() {
       axios
-        .get(`api/accounts/${this.customer.userId}`)
+        .get(`api/accounts/customer/${this.customer.userId}`)
         .then((response) => {
           this.accounts = response.data;
           console.log(this.accounts);
