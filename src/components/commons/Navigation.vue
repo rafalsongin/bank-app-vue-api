@@ -23,10 +23,7 @@
         </ul>
         <ul class="navbar-nav ms-auto mb-2 mb-md-0">
           <li class="nav-item" v-if="!isLoggedIn">
-            <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
-          </li>
-          <li class="nav-item" v-if="!isLoggedIn">
-            <router-link to="/register" class="nav-link" active-class="active">Customer Registration</router-link>
+            <router-link to="/login-register" class="nav-link" active-class="active">Login / Register</router-link>
           </li>
           <li class="nav-item d-flex align-items-center" v-if="isLoggedIn">
             <span class="navbar-text me-3">{{ userEmail }} ({{ userRole }})</span>

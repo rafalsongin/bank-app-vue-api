@@ -67,3 +67,43 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #30323d;
+}
+
+label {
+  color: #30323d;
+}
+
+input {
+  border: 2px solid #E8C547;
+}
+
+button {
+  background-color: #E8C547;
+  border-color: #E8C547;
+  color: #FFF;
+}
+
+button:hover {
+  background-color: #30323d;
+  border-color: #30323d;
+  color: #FFF;
+}
+</style>
