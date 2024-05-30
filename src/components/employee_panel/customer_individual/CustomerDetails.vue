@@ -117,6 +117,7 @@
 
 <script>
 import axios from "../../../axios_auth";
+import Swal from "sweetalert2";
 
 export default {
   props: {
@@ -155,11 +156,17 @@ export default {
         })
         .then((response) => {
           console.log("Account updated successfully:", response.data);
-          alert("Account limits updated successfully");
+          Swal.fire({
+            icon: "success",
+            title: "Account updated successfully",
+          });
         })
         .catch((error) => {
-          console.error("Error updating account:", error);
-          alert("Failed to update account limits");
+          Swal.fire({
+            icon: "error",
+            title: "Failed to update account",
+            text: error.message,
+          });
         });
     },
     formatCurrency(value) {
@@ -182,13 +189,20 @@ export default {
       axios
         .put(`api/customers/closeAccount/${this.customer.userId}`)
         .then((response) => {
-          this.$emit("update");
-          console.log("Customer account closed successfully:", response.data);
-          alert("Customer account closed successfully");
+          if (response.status == 200) {
+            this.$emit("update");
+            Swal.fire({
+              icon: "success",
+              title: "Customer account closed successfully",
+            });
+          }
         })
         .catch((error) => {
-          console.error("Error closing customer account:", error);
-          alert("Failed to close customer account");
+          Swal.fire({
+            icon: "error",
+            title: "Failed to close customer account",
+            text: error.message,
+          });
         });
     },
     fetchTransactions() {
@@ -197,10 +211,13 @@ export default {
         .get(`api/customers/transactions/${this.customer.userId}`) // use pinia or query inside the child components instead of the request fetching all transactions
         .then((response) => {
           this.transactions = response.data;
-          console.log(this.transactions);
         })
         .catch((error) => {
-          console.error("Error fetching transactions:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Failed to fetch transactions",
+            text: error.message,
+          });
         });
     },
   },
