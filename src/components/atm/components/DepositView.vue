@@ -25,7 +25,7 @@ export default {
   methods: {
     async deposit() {
       try {
-        await axios.post('http://localhost:8080/atm/deposit', {
+        await axios.post('http://188.166.27.231:8080/atm/deposit', {
           amount: this.amount
         }, {
           headers: {

@@ -13,7 +13,7 @@ export const useTransactionFetchStore = defineStore('transactions', {
                     throw new Error('JWT token is missing');
                 }
 
-                const response = await axios.get(`http://localhost:8080/api/transactions/account/${accountIban}`, {
+                const response = await axios.get(`http://188.166.27.231:8080/api/transactions/account/${accountIban}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,

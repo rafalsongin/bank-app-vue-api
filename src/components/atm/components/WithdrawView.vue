@@ -25,7 +25,7 @@ export default {
   methods: {
     async withdraw() {
       try {
-        await axios.post('http://localhost:8080/atm/withdraw', {
+        await axios.post('http://188.166.27.231:8080/atm/withdraw', {
           amount: this.amount
         }, {
           headers: {
