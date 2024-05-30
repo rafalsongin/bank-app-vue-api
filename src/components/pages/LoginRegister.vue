@@ -6,7 +6,7 @@
           <form @submit.prevent="login">
             <h2>Login</h2>
             <div class="mb-3">
-              <label for="username">Username</label>
+              <label for="username">Email</label>
               <input v-model="username" id="username" type="email" class="form-control" required>
             </div>
             <div class="mb-3">
@@ -27,7 +27,7 @@
             </div>
             <div class="mb-3">
               <label for="inputPassword" class="form-label">Password</label>
-              <input v-model="password" type="password" class="form-control" id="inputPassword" minlength="8" maxlength="40" required />
+              <input v-model="regPassword" type="password" class="form-control" id="inputPassword" minlength="8" maxlength="40" required />
             </div>
             <div class="mb-3">
               <label for="inputFirstName" class="form-label">First Name</label>
@@ -53,6 +53,7 @@
   </section>
 </template>
 
+
 <script>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
@@ -62,7 +63,6 @@ import router from "@/router";
 
 export default {
   setup() {
-    // Login form refs and methods
     const username = ref('');
     const password = ref('');
     const authStore = useAuthStore();
@@ -168,6 +168,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .container {
