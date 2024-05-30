@@ -26,7 +26,7 @@ const router = createRouter({
     { path: '/customerpanel/:id', component: CustomerPanelPage, props: true },
     { path: '/register', component: Register },
     { path: '/transferfunds', component: TransferFunds },
-    {path: '/alltransactions', component: AllTransactions},
+    { path: '/alltransactions', component: AllTransactions },
   ]
 })
 

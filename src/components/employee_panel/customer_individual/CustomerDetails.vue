@@ -29,7 +29,7 @@
         <div
           v-for="account in accounts"
           :key="account.iban"
-          class="account-details bg-white rounded-lg shadow-md"
+          class="account-details text-white rounded-lg shadow-md"
         >
           <p class="text-lg mb-2">
             <strong>Account Type:</strong> {{ account.accountType }}
@@ -138,7 +138,7 @@ export default {
   methods: {
     fetchAccounts() {
       axios
-        .get(`api/accounts/${this.customer.userId}`)
+        .get(`api/accounts/customer/${this.customer.userId}`)
         .then((response) => {
           this.accounts = response.data;
           console.log(this.accounts);
@@ -192,8 +192,9 @@ export default {
         });
     },
     fetchTransactions() {
+      // any time data gets sent to frontend use dto
       axios
-        .get(`api/customers/transactions/${this.customer.userId}`)
+        .get(`api/customers/transactions/${this.customer.userId}`) // use pinia or query inside the child components instead of the request fetching all transactions
         .then((response) => {
           this.transactions = response.data;
           console.log(this.transactions);
@@ -210,13 +211,13 @@ export default {
 .customer-details {
   border: 1px solid #ccc;
   border-radius: 10px;
-  background: #fff;
+  background-color: rgb(255, 255, 255);
   margin-top: 10px;
 }
 
 .account-details {
-  background: #fff;
-  border: 1px solid #ccc;
+  background-color: #4d5061;
+  border: 1px, solid rgb(0, 0, 0);
   border-radius: 10px;
   display: flex;
   flex-direction: column;

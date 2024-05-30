@@ -5,7 +5,12 @@ body {
   background: #CDD1C4;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Roboto', sans-serif;
 }
 
@@ -13,7 +18,8 @@ p {
   font-family: 'Open Sans', sans-serif;
 }
 
-h1, h2 {
+h1,
+h2 {
   font-weight: 700;
 }
 
@@ -23,24 +29,6 @@ h1, h2 {
   box-shadow: 1px 1px 4px 0 rgb(30 30 30 / 16%);
 }
 
-.product-card img {
-  margin: auto;
-  display: block;
-  max-width: 115px;
-  max-height: 100px;
-  margin-bottom: 10px;
-}
-
-@media screen and (max-width: 768px) {
-  .product-card img {
-    display: block;
-    width: 85px;
-    margin-right: 10px;
-    margin-bottom: 0px;
-    height: auto;
-    float: left;
-  }
-}
 
 .price {
   font-size: 1.5rem;

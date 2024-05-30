@@ -17,6 +17,7 @@
 
 ```sh
 npm install
+npm install dompurity
 ```
 
 - once all packages and modules are installed you can compile the project
