@@ -57,6 +57,7 @@ import UnverifiedCustomers from "../employee_panel/customer_overview/UnverifiedC
 import AllCustomers from "../employee_panel/customer_overview/AllCustomers.vue";
 import CustomerDetails from "../employee_panel/customer_individual/CustomerDetails.vue";
 import VerifiedCustomers from "../employee_panel/customer_overview/VerifiedCustomers.vue";
+import { useCustomersStore } from "../../stores/customersStore";
 import Swal from "sweetalert2";
 
 export default {
@@ -109,7 +110,6 @@ export default {
       axios
         .get("/api/customers")
         .then((result) => {
-          console.log(result); // for debugging
           this.customers = result.data;
         })
         .catch((error) =>
