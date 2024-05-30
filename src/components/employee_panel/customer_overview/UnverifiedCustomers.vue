@@ -67,7 +67,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .btn-verify {
   background-color: #e8c547;
 }

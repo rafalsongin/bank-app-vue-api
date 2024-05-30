@@ -91,6 +91,34 @@ export const useCustomersStore = defineStore('customers', {
                     });
                 });
         },
+        approveCustomer(userId) {
+            axios
+                .post(`/api/customers/approve/${userId}`)
+                .then((result) => {
+                    this.fetchCustomers();
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to approve customer',
+                        text: error.message,
+                    });
+                });
+        },
+        declineCustomer(userId) {
+            axios
+                .post(`/api/customers/decline/${userId}`)
+                .then((result) => {
+                    this.fetchCustomers();
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to decline customer',
+                        text: error.message,
+                    });
+                });
+        },
         saveAccount(account) {
             axios
                 .put(`api/accounts/changeAccount/${account.accountId}`, {
@@ -112,5 +140,6 @@ export const useCustomersStore = defineStore('customers', {
                 });
         }
     },
+
 });
 
