@@ -24,7 +24,7 @@ export default {
   methods: {
     async fetchBalance() {
       try {
-        const response = await axios.get('http://188.166.27.231:8080/atm/balance', {
+        const response = await axios.get('https://www.songin.me/bankapp-backend/atm/balance', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }

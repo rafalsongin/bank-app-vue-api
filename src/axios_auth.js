@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://188.166.27.231:8080/'
+    baseURL: 'https://www.songin.me/bankapp-backend/'
 });
 
 // Add a request interceptor
