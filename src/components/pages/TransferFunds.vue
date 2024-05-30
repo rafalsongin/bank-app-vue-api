@@ -120,7 +120,7 @@ import axios from "../../axios_auth";
 import Swal from "sweetalert2";
 import DOMPurify from "dompurify";
 import { useTransactionCreateStore } from "../../stores/transactionCreateStore";
-import { useAuthStore } from "@/stores/authStore";
+import { useEmployeeStore } from "../../stores/employeeStore";
 
 export default {
   data() {
@@ -132,7 +132,6 @@ export default {
       toAccountDetails: {},
       isFromAccountValid: true,
       isToAccountValid: true,
-      currentEmployeeID: null,
     };
   },
 
@@ -149,8 +148,8 @@ export default {
     },
   },
   async mounted() {
-    await this.fetchEmployeeDetails();
-    console.log("Current employee:", this.currentEmployeeID);
+    const employeeStore = useEmployeeStore();
+    await employeeStore.fetchEmployeeDetails();
   },
   methods: {
     isValidIban(iban) {
@@ -183,26 +182,6 @@ export default {
             this.isToAccountValid = false;
           }
         });
-    },
-    async fetchEmployeeDetails() {
-      try {
-        const store = useAuthStore();
-        const email = store.username || localStorage.getItem("username") || "";
-
-        if (!email) {
-          throw new Error("Email is not available");
-        }
-
-        const response = await axios.get(`api/employees/email/${email}`);
-
-        if (response.status !== 200) {
-          throw new Error("User was not found!");
-        }
-
-        this.currentEmployeeID = response.data.userId;
-      } catch (error) {
-        console.error("Error fetching employee details:", error.message);
-      }
     },
     validateTransfer() {
       let newBalance = this.fromAccountDetails.balance - this.amount;
@@ -273,6 +252,7 @@ export default {
       }
 
       const store = useTransactionCreateStore();
+      const employeeStore = useEmployeeStore();
 
       try {
         const transactionData = {
@@ -280,7 +260,7 @@ export default {
           amount: this.amount,
           fromAccount: this.fromIban,
           toAccount: this.toIban,
-          initiatedByUser: this.currentEmployeeID,
+          initiatedByUser: employeeStore.employee.userId,
         };
 
         await store.createTransaction(transactionData);
@@ -295,6 +275,8 @@ export default {
         this.amount = null;
         this.fromIban = "";
         this.toIban = "";
+        this.fromAccountDetails = {};
+        this.toAccountDetails = {};
         store.resetTransaction();
       } catch (error) {
         Swal.fire({
