@@ -1,5 +1,5 @@
 <template>
-  <div class="container h-100 d-flex justify-content-center align-items-start">
+  <div class="container h-100 d-flex justify-content-center align-items-center">
     <div class="atm-panel card shadow p-4">
       <h1 class="text-center mb-4">ATM Panel</h1>
       <div v-if="currentView === 'login'">
