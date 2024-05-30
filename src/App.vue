@@ -5,7 +5,7 @@
 
 <script>
 import Navigation from './components/commons/Navigation.vue';
-import { useLoggedInStore } from '@/stores/logged_in';
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
   name: "App",
@@ -13,7 +13,7 @@ export default {
     Navigation
   },
   created() {
-    const store = useLoggedInStore();
+    const store = useAuthStore();
     store.autoLogin();
   }
 };// stop
@@ -26,7 +26,8 @@ export default {
 
 body {
   font-family: 'Open Sans', sans-serif;
-  background-color: #CDD1C4;
+  background-color: #E8C547; 
 }
 </style>
 
+<!-- change background-color to #E8C547-->

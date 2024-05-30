@@ -1,8 +1,22 @@
 <template>
   <section>
-    <div class="container">
+    <div class="container mb-5">
       <div class="row justify-content-center">
-        <div class="col-md-8"> <!-- Adjusted column width -->
+        <div class="col-md-5 form-container">
+          <form @submit.prevent="login">
+            <h2>Login</h2>
+            <div class="mb-3">
+              <label for="username">Email</label>
+              <input v-model="username" id="username" type="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="password">Password</label>
+              <input v-model="password" type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+        <div class="col-md-6 form-container">
           <form @submit.prevent="register">
             <div class="h2">
               <h2>Apply the form to become a customer!</h2>
@@ -13,7 +27,7 @@
             </div>
             <div class="mb-3">
               <label for="inputPassword" class="form-label">Password</label>
-              <input v-model="password" type="password" class="form-control" id="inputPassword" minlength="8" maxlength="40" required />
+              <input v-model="regPassword" type="password" class="form-control" id="inputPassword" minlength="8" maxlength="40" required />
             </div>
             <div class="mb-3">
               <label for="inputFirstName" class="form-label">First Name</label>
@@ -39,39 +53,72 @@
   </section>
 </template>
 
+
 <script>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from '@/axios_auth';
+import { useAuthStore } from '@/stores/authStore';
 import Swal from 'sweetalert2';
+import axios from '@/axios_auth';
+import router from "@/router";
 
 export default {
-  name: "Register",
   setup() {
+    const username = ref('');
+    const password = ref('');
+    const authStore = useAuthStore();
+
+    const login = async () => {
+      try {
+        await authStore.login(username.value, password.value);
+        if (authStore.isLoggedIn) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Login successful',
+            showConfirmButton: false,
+            timer: 1500
+          }).then(() => {
+            router.push('/');
+          });
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Login failed',
+            text: 'Login credentials are incorrect.'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Login failed',
+            text: `An error occurred: ${error.response ? error.response.data.message : error.message}`
+          });
+        }
+      }
+    };
+
+    // Register form refs and methods
     const email = ref("");
-    const password = ref("");
+    const regPassword = ref("");
     const firstName = ref("");
     const lastName = ref("");
     const bsn = ref("");
     const phoneNumber = ref("");
-    const router = useRouter();
 
     const register = async () => {
       try {
         const response = await axios.post('/auth/register', {
           email: email.value,
-          password: password.value,
+          password: regPassword.value,
           firstName: firstName.value,
           lastName: lastName.value,
           bsn: bsn.value,
           phoneNumber: phoneNumber.value
         });
 
-        console.log('Registration response:', response); // Log the full response
+        console.log('Registration response:', response);
 
-        // Check for successful status codes
         if (response.status === 201 || response.status === 200) {
-          console.log("Registration Successful");
           Swal.fire({
             icon: 'success',
             title: 'Registration successful',
@@ -81,7 +128,6 @@ export default {
             router.push("/login");
           });
         } else {
-          console.log("Unexpected status code:", response.status);
           Swal.fire({
             icon: 'error',
             title: 'Registration failed',
@@ -90,14 +136,12 @@ export default {
         }
       } catch (error) {
         if (error.response && error.response.status === 409) {
-          console.error("Registration Failed: ", error.response.data);
           Swal.fire({
             icon: 'error',
             title: 'Registration failed',
             text: error.response.data
           });
         } else {
-          console.error("Registration Failed: ", error);
           Swal.fire({
             icon: 'error',
             title: 'Registration failed',
@@ -108,8 +152,13 @@ export default {
     };
 
     return {
-      email,
+      // Login
+      username,
       password,
+      login,
+      // Register
+      email,
+      regPassword,
       firstName,
       lastName,
       bsn,
@@ -120,11 +169,16 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .container {
-  max-width: 1000px; /* Increased max-width */
+  max-width: 1200px; /* Increased max-width */
   margin: 0 auto;
   padding-top: 50px;
+}
+
+.form-container {
+  margin: 0 20px; /* Added margin between the forms */
 }
 
 form {

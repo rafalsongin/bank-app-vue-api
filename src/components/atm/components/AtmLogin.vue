@@ -21,17 +21,16 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import Swal from 'sweetalert2';
-import router from "@/router";
 
 export default {
-  setup() {
+  setup(props, { emit }) {
     const username = ref('');
     const password = ref('');
     const store = useAuthStore();
 
     const login = async () => {
       try {
-        await store.login(username.value, password.value);
+        await store.loginAtm(username.value, password.value);
         if (store.isLoggedIn) {
           Swal.fire({
             icon: 'success',
@@ -39,7 +38,7 @@ export default {
             showConfirmButton: false,
             timer: 1500
           }).then(() => {
-            router.push('/');
+            emit('validate-login');
           });
         }
       } catch (error) {
@@ -88,22 +87,33 @@ h2 {
 }
 
 label {
-  color: #30323d;
+  color: #4D5061;
+  font-weight: bold;
 }
 
-input {
+.form-control {
   border: 2px solid #E8C547;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
-button {
-  background-color: #E8C547;
+.form-control:focus {
   border-color: #E8C547;
-  color: #FFF;
+  box-shadow: 0 0 5px rgba(232, 197, 71, 0.5);
 }
 
-button:hover {
-  background-color: #30323d;
-  border-color: #30323d;
-  color: #FFF;
+.btn-primary {
+  background-color: #E8C547;
+  border: none;
+  color: #30323d;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #d4ae42;
 }
 </style>
