@@ -15,7 +15,7 @@
           <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
-          <td>{{ customer.email }}</td>
+          <td>{{ customer.username }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
         </tr>
       </tbody>
