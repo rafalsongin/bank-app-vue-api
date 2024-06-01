@@ -76,34 +76,28 @@
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
       <div v-if="transactions.length">
-        <table class="transaction-table text-white table align-middle">
+        <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
-              <th>Timestamp</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Sender</th>
-              <th>From Account</th>
-              <th>Account Type</th>
-              <th>Recipient</th>
-              <th>To Account</th>
-              <th>Account Type</th>
+              <th class="bg-cell">Timestamp</th>
+              <th class="bg-cell">Type</th>
+              <th class="bg-cell">Amount</th>
+              <th class="bg-cell">From Account</th>
+              <th class="bg-cell">To Account</th>
+              <th class="bg-cell">Initiated by user</th>
             </tr>
           </thead>
           <tbody>
-            <tr
+            <tr id="css_tr"
               v-for="transaction in transactions"
               :key="transaction.transaction_id"
             >
-              <td>{{ formatDate(transaction.timestamp) }}</td>
-              <td>{{ transaction.transaction_type }}</td>
-              <td>{{ formatCurrency(transaction.amount) }}</td>
-              <td>{{ transaction.fromAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.fromAccountEntity.iban }}</td>
-              <td>{{ transaction.fromAccountEntity.accountType }}</td>
-              <td>{{ transaction.toAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.toAccountEntity.iban }}</td>
-              <td>{{ transaction.toAccountEntity.accountType }}</td>
+                <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
+                <td class="bg-cell">{{ transaction.transactionType }}</td>
+                <td class="bg-cell">{{ formatCurrency(transaction.amount) }}</td>
+                <td class="bg-cell">{{ transaction.fromAccount }}</td>
+                <td class="bg-cell">{{ transaction.toAccount }}</td>
+                <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
             </tr>
           </tbody>
         </table>
@@ -224,12 +218,15 @@ button:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: rgb(0, 0, 0);
   margin-top: 20px;
 }
 
 .transaction-table {
+    border-radius: 10px;
+}
+
+.bg-cell {
   background-color: #4d5061;
-  border-radius: 10px;
+  color: white;
 }
 </style>

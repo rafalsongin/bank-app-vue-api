@@ -161,8 +161,8 @@ export default {
   color: white;
 }
 .btn-toggle-view:focus {
-  outline: none; /* Removes the outline */
-  box-shadow: none; /* Optional: Removes any focus shadow, if there is one */
+  outline: none; 
+  box-shadow: none; 
 }
 .btn-toggle-view:hover {
   background-color: #6190d3;

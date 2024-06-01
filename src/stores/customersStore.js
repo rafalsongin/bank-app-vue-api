@@ -59,7 +59,7 @@ export const useCustomersStore = defineStore('customers', {
         },
         fetchTransactions(customerId) {
             axios
-                .get(`api/customers/transactions/${customerId}`)
+                .get(`api/transactions/${customerId}`)
                 .then((response) => {
                     this.transactions = response.data;
                 })
