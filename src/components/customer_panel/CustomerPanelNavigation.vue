@@ -21,7 +21,7 @@ export default {
   },
   data() {
     return {
-      panels: ['Overview', 'Accounts', 'Create Transaction', 'Settings']
+      panels: ['Overview', 'Accounts', 'Create Transaction', 'Search Customer', 'Settings']
     };
   },
   methods: {
