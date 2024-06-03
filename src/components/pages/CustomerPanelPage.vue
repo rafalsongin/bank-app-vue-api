@@ -59,6 +59,7 @@ export default {
     CustomerPanelOverview,
     CustomerPanelAccounts,
     CustomerPanelNewTransaction,
+    CustomerPanelSearchCustomer,
     CustomerPanelSettings
   },
   data() {

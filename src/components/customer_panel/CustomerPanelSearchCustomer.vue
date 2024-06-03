@@ -1,6 +1,6 @@
 <template>
     <div v-if="currentCustomer != null" class="container my-4">
-    
+      Hello from Search!
     </div>
 </template>
 
