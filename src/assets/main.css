@@ -22,31 +22,3 @@ h1,
 h2 {
   font-weight: 700;
 }
-
-/* Products cards */
-
-.product-card {
-  box-shadow: 1px 1px 4px 0 rgb(30 30 30 / 16%);
-}
-
-
-.price {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.product-card p {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.product-card small {
-  color: #b3b3b3;
-  font-size: 0.8rem;
-}
-
-/* Social icons */
-
-.fa-brands:hover {
-  color: #929292;
-}
