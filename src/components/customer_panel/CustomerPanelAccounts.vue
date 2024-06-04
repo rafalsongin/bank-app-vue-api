@@ -9,10 +9,14 @@
           <div class="card mb-4">
             <div class="card-body">
               <h5 class="card-title">Account Details</h5>
-              <div v-for="account in currentCustomer.accounts"
-                :key="account.iban" class="mb-3">
+              <div
+                v-for="account in currentCustomer.accounts"
+                :key="account.iban"
+                class="mb-3"
+              >
                 <AccountCard
-                  :account="account" @click="selectAccount(account)"
+                  :account="account"
+                  @click="selectAccount(account)"
                 ></AccountCard>
               </div>
             </div>
@@ -21,24 +25,32 @@
         <div class="col-md-6" v-if="selectedAccount">
           <div class="card mb-4">
             <div class="card-body">
-              <div class="card-title">
-                <h5>Transactions for {{ selectedAccount.iban }}</h5>
-                <div>
-                  <!--  Maria, you can work in here,
-                  when you make a button for search or something
-                  you could swap over the transactions array to a filtered one -->
-                  <span style="color: red;">Add filters and searches</span>
-                </div>
-              </div>
-              <div class="list-group">
-                <div v-for="transaction in transactions" 
-                  :key="transaction.id" class="list-group-item">
-                  <TransactionCard :transaction="transaction" :selectedAccount="selectedAccount"></TransactionCard>
-                </div>
-                <div v-if="!transactions.length" class="list-group-item">
+              <h5 class="card-title">
+                Transactions for {{ selectedAccount.iban }}
+              </h5>
+              <ul class="list-group">
+                <li
+                  v-for="transaction in transactions"
+                  :key="transaction.id"
+                  class="list-group-item"
+                >
+                  <strong>Type:</strong> {{ transaction.transactionType }}<br />
+                  <strong>Amount:</strong>
+                  <span :class="amountClass(transaction)">{{
+                    formatAmount(transaction)
+                  }}</span
+                  ><br />
+                  <strong>Date:</strong>
+                  {{ formatTimestamp(transaction.timestamp) }}<br />
+                  <strong>From:</strong> {{ transaction.fromAccount }}<br />
+                  <strong>To:</strong> {{ transaction.toAccount }}<br />
+                  <strong>Initialized by:</strong>
+                  {{ transaction.initiatedByUser }}
+                </li>
+                <li v-if="!transactions.length" class="list-group-item">
                   No transactions found.
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -49,13 +61,11 @@
 
 <script>
 import AccountCard from "@/components/customer_panel/PanelComponents/AccountCard.vue";
-import TransactionCard from "@/components/customer_panel/PanelComponents/TransactionCard.vue";
 import { useTransactionFetchStore } from "@/stores/transactionFetchStore.js";
 
 export default {
   components: {
     AccountCard,
-    TransactionCard,
   },
   props: {
     currentCustomer: Object,
@@ -74,19 +84,51 @@ export default {
     async fetchTransactions(account) {
       console.log(account);
       try {
-        await useTransactionFetchStore().fetchTransactionsByAccountIban(account.iban);
+        await useTransactionFetchStore().fetchTransactionsByAccountIban(
+          account.iban
+        );
       } catch (error) {
-        console.error("Error when fetching transactions of selected account:", error.message);
+        console.error(
+          "Error when fetching transactions of selected account:",
+          error.message
+        );
       }
     },
     selectAccount(account) {
       this.selectedAccount = account;
       this.fetchTransactions(account);
-    }
+    },
+    formatTimestamp(timestamp) {
+      const date = new Date(timestamp);
+      return (
+        date.toLocaleDateString() +
+        " " +
+        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
+    },
+    formatAmount(transaction) {
+      const sign =
+        transaction.fromAccount === this.selectedAccount.iban ? "-" : "+";
+      const amount = Math.abs(transaction.amount).toFixed(2);
+      return `${sign}${amount}`;
+    },
+    amountClass(transaction) {
+      return transaction.fromAccount === this.selectedAccount.iban
+        ? "text-danger font-weight-bold"
+        : "text-success font-weight-bold";
+    },
   },
 };
 </script>
 
 <style scoped>
-
+.text-danger {
+  color: red;
+}
+.text-success {
+  color: green;
+}
+.font-weight-bold {
+  font-weight: bold;
+}
 </style>

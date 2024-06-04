@@ -26,8 +26,7 @@
         </div>
         <div v-else-if="currentPanel === 'Settings'">
           <CustomerPanelSettings
-              :currentCustomer="currentCustomer"
-              @customerUpdated="updateCustomerDetails" />
+              :currentCustomer="currentCustomer" />
         </div>
       </div>
     </div>
@@ -68,16 +67,19 @@ export default {
       currentPanel: "Overview",
       currentCustomer:
           {
-            username: "",
+            userId: "",
             email: "",
             firstName: "",
             lastName: "",
-            bankName: "",
+            bankId: "",
             userRole: "",
-            bsn: "",
             phoneNumber: "",
             accountApprovalStatus: "",
+            transactionLimit: null,
             accounts: [],
+            bsn: "",
+            username: "",
+            password: "",
           },
       isNavigationDisabled: true,
       panelData: {}
@@ -132,9 +134,6 @@ export default {
           this.isNavigationDisabled =true;
           break;
       }
-    },
-    updateCustomerDetails(updatedCustomer) {
-      this.currentCustomer = updatedCustomer;
     }
   },
   created() {
