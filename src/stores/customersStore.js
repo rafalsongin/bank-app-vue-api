@@ -77,6 +77,9 @@ export const useCustomersStore = defineStore('customers', {
                 .then((response) => {
                     if (response.status == 200) {
                         this.fetchCustomers(); // Refresh the customer list after closing an account
+                        if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
+                            this.selectedCustomer.accountApprovalStatus = 'CLOSED';
+                          }
                         Swal.fire({
                             icon: "success",
                             title: "Customer account closed successfully",
