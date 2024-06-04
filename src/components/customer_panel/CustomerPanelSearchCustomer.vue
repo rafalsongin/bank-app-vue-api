@@ -9,6 +9,9 @@ export default {
   props: {
     currentCustomer: Object
   },
+  data() {
+
+  },
   methods: {
     
   }
