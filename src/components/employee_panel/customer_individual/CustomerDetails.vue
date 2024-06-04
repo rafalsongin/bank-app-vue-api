@@ -76,18 +76,15 @@
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
       <div v-if="transactions.length">
-        <table class="transaction-table text-white table align-middle">
+        <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
-              <th>Timestamp</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Sender</th>
-              <th>From Account</th>
-              <th>Account Type</th>
-              <th>Recipient</th>
-              <th>To Account</th>
-              <th>Account Type</th>
+              <th class="bg-cell">Timestamp</th>
+              <th class="bg-cell">Type</th>
+              <th class="bg-cell">Amount</th>
+              <th class="bg-cell">From Account</th>
+              <th class="bg-cell">To Account</th>
+              <th class="bg-cell">Initiated by user</th>
             </tr>
           </thead>
           <tbody>
@@ -95,15 +92,14 @@
               v-for="transaction in transactions"
               :key="transaction.transaction_id"
             >
-              <td>{{ formatDate(transaction.timestamp) }}</td>
-              <td>{{ transaction.transaction_type }}</td>
-              <td>{{ formatCurrency(transaction.amount) }}</td>
-              <td>{{ transaction.fromAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.fromAccountEntity.iban }}</td>
-              <td>{{ transaction.fromAccountEntity.accountType }}</td>
-              <td>{{ transaction.toAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.toAccountEntity.iban }}</td>
-              <td>{{ transaction.toAccountEntity.accountType }}</td>
+                <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
+                <td class="bg-cell">{{ transaction.transactionType }}</td>
+                <td class="bg-cell" :class="getTransactionClass(transaction)">
+                {{ formatTransactionAmount(transaction) }}
+              </td>          
+                <td class="bg-cell">{{ transaction.fromAccount }}</td>
+                <td class="bg-cell">{{ transaction.toAccount }}</td>
+                <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
             </tr>
           </tbody>
         </table>
@@ -116,8 +112,8 @@
 </template>
 
 <script>
-import axios from "../../../axios_auth";
-import Swal from "sweetalert2";
+import { useCustomersStore } from "../../../stores/customersStore";
+import { computed, onMounted } from "vue";
 
 export default {
   props: {
@@ -126,56 +122,33 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      accounts: [],
-      transactions: [],
+  setup(props) {
+    const customersStore = useCustomersStore();
+
+    const accounts = computed(() => customersStore.accounts);
+    const transactions = computed(() => customersStore.transactions);
+
+    onMounted(() => {
+      customersStore.fetchAccounts(props.customer.userId);
+      customersStore.fetchTransactions(props.customer.userId);
+    });
+
+    const saveAccount = (account) => {
+      customersStore.saveAccount(account);
     };
-  },
-  mounted() {
-    this.fetchAccounts();
-    this.fetchTransactions();
-  },
-  methods: {
-    fetchAccounts() {
-      axios
-        .get(`api/accounts/customer/${this.customer.userId}`)
-        .then((response) => {
-          this.accounts = response.data;
-          console.log(this.accounts);
-        })
-        .catch((error) => {
-          console.error("Error fetching accounts:", error);
-        });
-    },
-    saveAccount(account) {
-      axios
-        .put(`api/accounts/changeAccount/${account.accountId}`, {
-          absoluteTransferLimit: account.absoluteTransferLimit,
-          dailyTransferLimit: account.dailyTransferLimit,
-        })
-        .then((response) => {
-          console.log("Account updated successfully:", response.data);
-          Swal.fire({
-            icon: "success",
-            title: "Account updated successfully",
-          });
-        })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Failed to update account",
-            text: error.message,
-          });
-        });
-    },
-    formatCurrency(value) {
+
+    const closeCustomerAccount = async () => {
+      await customersStore.closeCustomerAccount(props.customer.userId);
+    };
+
+    const formatCurrency = (value) => {
       return new Intl.NumberFormat("en-IE", {
         style: "currency",
         currency: "EUR",
       }).format(value);
-    },
-    formatDate(dateString) {
+    };
+
+    const formatDate = (dateString) => {
       const options = {
         year: "numeric",
         month: "numeric",
@@ -184,42 +157,41 @@ export default {
         minute: "2-digit",
       };
       return new Date(dateString).toLocaleDateString("en-GB", options);
-    },
-    closeCustomerAccount() {
-      axios
-        .put(`api/customers/closeAccount/${this.customer.userId}`)
-        .then((response) => {
-          if (response.status == 200) {
-            this.$emit("update");
-            Swal.fire({
-              icon: "success",
-              title: "Customer account closed successfully",
-            });
-          }
-        })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Failed to close customer account",
-            text: error.message,
-          });
-        });
-    },
-    fetchTransactions() {
-      // any time data gets sent to frontend use dto
-      axios
-        .get(`api/customers/transactions/${this.customer.userId}`) // use pinia or query inside the child components instead of the request fetching all transactions
-        .then((response) => {
-          this.transactions = response.data;
-        })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Failed to fetch transactions",
-            text: error.message,
-          });
-        });
-    },
+    };
+
+    const isOutgoingTransaction = (transaction) => {
+      return accounts.value.some(account => account.iban === transaction.fromAccount);
+    };
+
+    const isIncomingTransaction = (transaction) => {
+      return accounts.value.some(account => account.iban === transaction.toAccount);
+    };
+
+    const formatTransactionAmount = (transaction) => {
+      const formattedAmount = formatCurrency(transaction.amount);
+      return isOutgoingTransaction(transaction) ? `-${formattedAmount}` : `+${formattedAmount}`;
+    };
+
+    const getTransactionClass = (transaction) => {
+      if (isOutgoingTransaction(transaction)) {
+        return 'red-amount';
+      } else if (isIncomingTransaction(transaction)) {
+        return 'green-amount';
+      } else {
+        return '';
+      }
+    };
+
+    return {
+      accounts,
+      transactions,
+      saveAccount,
+      closeCustomerAccount,
+      formatCurrency,
+      formatDate,
+      formatTransactionAmount,
+      getTransactionClass,
+    };
   },
 };
 </script>
@@ -273,12 +245,24 @@ button:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: rgb(0, 0, 0);
   margin-top: 20px;
 }
 
 .transaction-table {
-  background-color: #4d5061;
-  border-radius: 10px;
+    border-radius: 10px;
 }
+
+.bg-cell {
+  background-color: #4d5061;
+  color: white;
+}
+
+.red-amount {
+  color: #f79797;
+}
+
+.green-amount {
+  color: #7bf2ad;
+}
+
 </style>

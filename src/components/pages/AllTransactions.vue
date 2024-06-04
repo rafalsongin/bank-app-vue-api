@@ -5,19 +5,16 @@
         <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
       </div>
       <div class="col-12">
-        <div v-if="transactions.length">
+        <div v-if="transactions && transactions.length">
           <table class="table transaction-table text-white">
             <thead>
               <tr>
                 <th>Timestamp</th>
                 <th>Type</th>
                 <th>Amount</th>
-                <th>Sender</th>
                 <th>From Account</th>
-                <th>Account Type</th>
-                <th>Recipient</th>
                 <th>To Account</th>
-                <th>Account Type</th>
+                <th>Initiated by user</th>
               </tr>
             </thead>
             <tbody>
@@ -26,17 +23,41 @@
                 :key="transaction.transaction_id"
               >
                 <td>{{ formatDate(transaction.timestamp) }}</td>
-                <td>{{ transaction.transaction_type }}</td>
+                <td>{{ transaction.transactionType }}</td>
                 <td>{{ formatCurrency(transaction.amount) }}</td>
-                <td>{{ transaction.fromAccountEntity.customerFullName }}</td>
-                <td>{{ transaction.fromAccountEntity.iban }}</td>
-                <td>{{ transaction.fromAccountEntity.accountType }}</td>
-                <td>{{ transaction.toAccountEntity.customerFullName }}</td>
-                <td>{{ transaction.toAccountEntity.iban }}</td>
-                <td>{{ transaction.toAccountEntity.accountType }}</td>
+                <td>{{ transaction.fromAccount }}</td>
+                <td>{{ transaction.toAccount }}</td>
+                <td>{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
               </tr>
             </tbody>
           </table>
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === 1 }"
+                @click="setPage(currentPage - 1)"
+              >
+                <a class="page-link" href="#">Previous</a>
+              </li>
+              <li
+                class="page-item"
+                v-for="page in totalPages"
+                :key="page"
+                :class="{ active: currentPage === page }"
+                @click="setPage(page)"
+              >
+                <a class="page-link" href="#">{{ page }}</a>
+              </li>
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === totalPages }"
+                @click="setPage(currentPage + 1)"
+              >
+                <a class="page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
         </div>
         <div v-else class="text-center">
           <p>No transactions found.</p>
@@ -47,40 +68,26 @@
 </template>
 
 <script>
-import axios from "../../axios_auth";
-import Swal from "sweetalert2";
+import { useTransactionsStore } from "../../stores/allTransactionsStore";
+import { computed } from 'vue';
 
 export default {
-  data() {
-    return {
-      transactions: [],
-    };
-  },
-  mounted() {
-    this.fetchTransactions();
-  },
-  methods: {
-    fetchTransactions() {
-      axios
-        .get(`api/transactions`)
-        .then((response) => {
-          this.transactions = response.data;
-        })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to fetch transactions: " + error.message,
-          });
-        });
-    },
-    formatCurrency(value) {
+  setup() {
+    const transactionsStore = useTransactionsStore();
+    transactionsStore.fetchTransactions();
+
+    const transactions = computed(() => transactionsStore.transactions);
+    const currentPage = computed(() => transactionsStore.currentPage);
+    const totalPages = computed(() => transactionsStore.totalPages);
+
+    const formatCurrency = (value) => {
       return new Intl.NumberFormat("en-IE", {
         style: "currency",
         currency: "EUR",
       }).format(value);
-    },
-    formatDate(dateString) {
+    };
+
+    const formatDate = (dateString) => {
       const options = {
         year: "numeric",
         month: "numeric",
@@ -89,14 +96,26 @@ export default {
         minute: "2-digit",
       };
       return new Date(dateString).toLocaleDateString("en-GB", options);
-    },
+    };
+
+    const setPage = (page) => {
+      if (page > 0 && page <= totalPages.value) {
+        transactionsStore.setPage(page);
+      }
+    };
+
+    return {
+      transactions,
+      currentPage,
+      totalPages,
+      formatCurrency,
+      formatDate,
+      setPage,
+    };
   },
 };
 </script>
 
 <style scoped>
-.transaction-table {
-  background-color: #4d5061;
-  border-radius: 10px;
-}
+
 </style>

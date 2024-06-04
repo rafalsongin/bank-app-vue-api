@@ -21,7 +21,7 @@
           <td>
             <button
               class="btn btn-verify fw-bold me-2"
-              @click="verifyCustomer(customer.userId)"
+              @click="approveCustomer(customer.userId)"
             >
               Verify
             </button>
@@ -39,44 +39,35 @@
 </template>
 
 <script>
-import axios from "../../../axios_auth";
+import { useCustomersStore } from "../../../stores/customersStore";
+import { computed } from "vue";
 
 export default {
-  props: {
-    customers: {
-      type: Array,
-      required: true,
-    },
-  },
-  computed: {
-    filteredCustomers() {
-      return this.customers.filter(
-        (customer) => customer.accountApprovalStatus === "UNVERIFIED"
-      );
-    },
-  },
-  methods: {
-    verifyCustomer(userId) {
-      axios
-        .post(`/api/customers/approve/${userId}`)
-        .then((result) => {
-          this.$emit("update");
-        })
-        .catch((error) => console.log(error));
-    },
-    declineCustomer(userId) {
-      axios
-        .post(`/api/customers/decline/${userId}`)
-        .then((result) => {
-          this.$emit("update");
-        })
-        .catch((error) => console.log(error));
-    },
+  setup() {
+    const customersStore = useCustomersStore();
+
+    const filteredCustomers = computed(
+      () => customersStore.unverifiedCustomers
+    );
+
+    const approveCustomer = (userId) => {
+      customersStore.approveCustomer(userId);
+    };
+
+    const declineCustomer = (userId) => {
+      customersStore.declineCustomer(userId);
+    };
+
+    return {
+      filteredCustomers,
+      approveCustomer,
+      declineCustomer,
+    };
   },
 };
 </script>
 
-<style>
+<style scoped>
 .btn-verify {
   background-color: #e8c547;
 }

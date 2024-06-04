@@ -20,6 +20,10 @@
               :currentCustomer="currentCustomer"
               @updateCustomerAccountData="refreshCustomerAccounts"/>
         </div>
+        <div v-else-if="currentPanel === 'Search Customer'">
+          <CustomerPanelSearchCustomer
+              :currentCustomer="currentCustomer" />
+        </div>
         <div v-else-if="currentPanel === 'Settings'">
           <CustomerPanelSettings
               :currentCustomer="currentCustomer" />
@@ -43,6 +47,7 @@ import CustomerPanelOverview from "@/components/customer_panel/CustomerPanelOver
 import CustomerPanelAccounts from "@/components/customer_panel/CustomerPanelAccounts.vue";
 import CustomerPanelNewTransaction from "@/components/customer_panel/CustomerPanelNewTransaction.vue";
 
+import CustomerPanelSearchCustomer from "@/components/customer_panel/CustomerPanelSearchCustomer.vue";
 import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
 
 import axios from "@/axios_auth";
@@ -54,6 +59,7 @@ export default {
     CustomerPanelOverview,
     CustomerPanelAccounts,
     CustomerPanelNewTransaction,
+    CustomerPanelSearchCustomer,
     CustomerPanelSettings
   },
   data() {
