@@ -6,14 +6,14 @@ export const useTransactionFetchStore = defineStore('transactions', {
         transactions: [],
     }),
     actions: {
-        async fetchTransactionsByAccountIban(accountIban) {
+        async fetchTransactionsByAccountIban(accountId) {  // to fix issues id pushed
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
                     throw new Error('JWT token is missing');
                 }
 
-                const response = await axios.get(`http://localhost:8080/api/transactions/account/${accountIban}`, {
+                const response = await axios.get(`http://localhost:8080/api/transactions/accountId/${accountId}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
