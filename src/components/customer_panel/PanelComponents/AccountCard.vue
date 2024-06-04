@@ -15,7 +15,7 @@
           <span class="h5">{{ account.dailyTransferLimit.toFixed(2) }}&#8364</span>
         </div>
         <div>
-          <p class="mb-1 text-secondary">Absolute Transfer Limit</p>
+          <p class="mb-1 text-secondary">Absolute Limit</p>
           <span class="h5">{{ account.absoluteTransferLimit.toFixed(2) }}&#8364</span>
         </div>
       </div>
