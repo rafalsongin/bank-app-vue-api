@@ -11,6 +11,7 @@
             v-model="fromIban"
             class="form-control"
             placeholder="Enter IBAN"
+            @blur="sanitizeIban('fromIban')"
           />
         </div>
         <div class="mt-3">
@@ -84,6 +85,7 @@
             v-model="toIban"
             class="form-control"
             placeholder="Enter IBAN"
+            @blur="sanitizeIban('toIban')"
           />
         </div>
         <div class="mt-3">
@@ -115,6 +117,10 @@
 
 <script>
 import axios from "../../axios_auth";
+import Swal from "sweetalert2";
+import DOMPurify from "dompurify";
+import { useTransactionCreateStore } from "../../stores/transactionCreateStore";
+import { useEmployeeStore } from "../../stores/employeeStore";
 
 export default {
   data() {
@@ -141,12 +147,18 @@ export default {
       }
     },
   },
-
+  async mounted() {
+    const employeeStore = useEmployeeStore();
+    await employeeStore.fetchEmployeeDetails();
+  },
   methods: {
     isValidIban(iban) {
       // Basic IBAN validation for the Netherlands
       const ibanRegex = /^NL\d{2}[A-Z]{4}\d{10}$/;
       return ibanRegex.test(iban);
+    },
+    sanitizeIban(field) {
+      this[field] = DOMPurify.sanitize(this[field]);
     },
     getCheckingAccountsByIBAN(iban, type) {
       axios
@@ -171,35 +183,111 @@ export default {
           }
         });
     },
-    transferAmount() {
-      // Implement your transfer logic here
-      console.log(
-        `Transferring ${this.amount} from ${this.fromIban} to ${this.toIban}`
-      );
+    validateTransfer() {
+      let newBalance = this.fromAccountDetails.balance - this.amount;
+
+      switch (true) {
+        case this.fromIban === "":
+          Swal.fire({
+            icon: "error",
+            title: "Invalid account",
+            text: "Please enter a valid account number in the From IBAN field.",
+          });
+          return false;
+        case this.toIban === "":
+          Swal.fire({
+            icon: "error",
+            title: "Invalid account",
+            text: "Please enter a valid account number in the To IBAN field.",
+          });
+          return false;
+        case this.amount === null || this.amount <= 0 || isNaN(this.amount):
+          Swal.fire({
+            icon: "error",
+            title: "Invalid amount",
+            text: "Please enter a valid amount.",
+          });
+          return false;
+
+        case this.amount >
+          this.fromAccountDetails.availableDailyAmountForTransfer:
+          Swal.fire({
+            icon: "error",
+            title: "Invalid amount",
+            text: "Amount exceeds daily transfer limit.",
+          });
+          return false;
+
+        case this.amount > this.fromAccountDetails.balance:
+          Swal.fire({
+            icon: "error",
+            title: "Invalid amount",
+            text: "Amount exceeds account balance.",
+          });
+          return false;
+
+        case newBalance < this.fromAccountDetails.absoluteTransferLimit:
+          Swal.fire({
+            icon: "error",
+            title: "Invalid amount",
+            text: "Amount exceeds absolute transfer limit.",
+          });
+          return false;
+
+        case this.fromIban === this.toIban:
+          Swal.fire({
+            icon: "error",
+            title: "Invalid transaction",
+            text: "Cannot transfer to the same account.",
+          });
+          return false;
+
+        default:
+          return true;
+      }
+    },
+    async transferAmount() {
+      if (!this.validateTransfer()) {
+        return;
+      }
+
+      const store = useTransactionCreateStore();
+      const employeeStore = useEmployeeStore();
+
+      try {
+        const transactionData = {
+          transactionType: "External Transaction",
+          amount: this.amount,
+          fromAccount: this.fromIban,
+          toAccount: this.toIban,
+          initiatedByUser: employeeStore.employee.userId,
+        };
+
+        await store.createTransaction(transactionData);
+
+        Swal.fire({
+          icon: "success",
+          title: "Transfer Successful",
+          text: `Successfully transferred ${this.amount} from ${this.fromIban} to ${this.toIban}.`,
+        });
+
+        // Reset the form and store
+        this.amount = null;
+        this.fromIban = "";
+        this.toIban = "";
+        this.fromAccountDetails = {};
+        this.toAccountDetails = {};
+        store.resetTransaction();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Transfer Failed",
+          text: error.message,
+        });
+      }
     },
   },
 };
 </script>
-
-<!-- 
-
-
-// 4)before making a new transaction, i need to both checking accounts and the sum to be transferred
-// 5) i need to check both limits daily transfer limit and account balance, and absolute limit before the transaction
-// 6) i need to be able to create a new transaction
-
-// X) use the query and mutate stuff -->
-
-<!--
-    TODO: errors for pressing the button:
-    - if the amount is not a number
-    - if the amount is not a positive number
-    - if the amount is greater than the daily transfer limit
-    - if the amount is greater than the account balance
-    - if the amount is greater than the absolute limit
-    - if it's the same account in both of them
-
-    TODO: ADD CHECKS IN BACKEND
- -->
 
 <style></style>
