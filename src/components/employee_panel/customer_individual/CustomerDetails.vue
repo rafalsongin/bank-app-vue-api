@@ -88,13 +88,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr id="css_tr"
+            <tr
               v-for="transaction in transactions"
               :key="transaction.transaction_id"
             >
                 <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
                 <td class="bg-cell">{{ transaction.transactionType }}</td>
-                <td class="bg-cell">{{ formatCurrency(transaction.amount) }}</td>
+                <td class="bg-cell" :class="getTransactionClass(transaction)">
+                {{ formatTransactionAmount(transaction) }}
+              </td>          
                 <td class="bg-cell">{{ transaction.fromAccount }}</td>
                 <td class="bg-cell">{{ transaction.toAccount }}</td>
                 <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
@@ -157,6 +159,29 @@ export default {
       return new Date(dateString).toLocaleDateString("en-GB", options);
     };
 
+    const isOutgoingTransaction = (transaction) => {
+      return accounts.value.some(account => account.iban === transaction.fromAccount);
+    };
+
+    const isIncomingTransaction = (transaction) => {
+      return accounts.value.some(account => account.iban === transaction.toAccount);
+    };
+
+    const formatTransactionAmount = (transaction) => {
+      const formattedAmount = formatCurrency(transaction.amount);
+      return isOutgoingTransaction(transaction) ? `-${formattedAmount}` : `+${formattedAmount}`;
+    };
+
+    const getTransactionClass = (transaction) => {
+      if (isOutgoingTransaction(transaction)) {
+        return 'red-amount';
+      } else if (isIncomingTransaction(transaction)) {
+        return 'green-amount';
+      } else {
+        return '';
+      }
+    };
+
     return {
       accounts,
       transactions,
@@ -164,6 +189,8 @@ export default {
       closeCustomerAccount,
       formatCurrency,
       formatDate,
+      formatTransactionAmount,
+      getTransactionClass,
     };
   },
 };
@@ -229,4 +256,13 @@ button:hover {
   background-color: #4d5061;
   color: white;
 }
+
+.red-amount {
+  color: #f79797;
+}
+
+.green-amount {
+  color: #7bf2ad;
+}
+
 </style>

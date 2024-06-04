@@ -45,6 +45,7 @@ export default {
   props: {
     currentCustomer: Object,
   },
+
   data() {
     return {
       firstName: "",
@@ -52,6 +53,7 @@ export default {
       iban: null,
     };
   },
+
   methods: {
     async searchUser() {
       try {

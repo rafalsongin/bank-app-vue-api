@@ -84,9 +84,7 @@ export default {
     async fetchTransactions(account) {
       console.log(account);
       try {
-        await useTransactionFetchStore().fetchTransactionsByAccountIban(
-          account.iban
-        );
+        await useTransactionFetchStore().fetchTransactionsByAccountIban(account.accountId); // to fix issues id pushed
       } catch (error) {
         console.error(
           "Error when fetching transactions of selected account:",
