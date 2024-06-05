@@ -31,9 +31,12 @@
             <input type="text" v-model="toIban" class="form-control" placeholder="To IBAN">
           </div>
         </div>
-        <div class="mb-3 row">
-          <div class="col-md-12 text-center">
-            <button class="btn btn-primary" @click="applyFilter">Apply Filter</button>
+        <div class="mb-3 row justify-content-center">
+            <div class="col-md-2">
+              <button class="btn btn-primary" @click="applyFilter">Apply Filter</button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-secondary" @click="clearFilters">Clear Filters</button>
           </div>
         </div>
         <div v-if="transactions && transactions.length">
@@ -156,6 +159,16 @@ export default {
       transactionsStore.fetchTransactions(1, startDate.value, endDate.value, amountCondition.value, amountValue.value, fromIbanValue, toIbanValue);
     };
 
+    const clearFilters = () => {
+      startDate.value = null;
+      endDate.value = null;
+      amountCondition.value = 'equal';
+      amountValue.value = null;
+      fromIban.value = null;
+      toIban.value = null;
+      applyFilter(); 
+    };
+
     return {
       transactions,
       currentPage,
@@ -171,6 +184,7 @@ export default {
       fromIban,
       toIban,
       applyFilter,
+      clearFilters,
     };
   },
 };
