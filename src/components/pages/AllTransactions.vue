@@ -5,6 +5,37 @@
         <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
       </div>
       <div class="col-12">
+        <div class="mb-3 row">
+          <div class="col-md-3">
+            <input type="date" v-model="startDate" class="form-control" placeholder="Start Date">
+          </div>
+          <div class="col-md-3">
+            <input type="date" v-model="endDate" class="form-control" placeholder="End Date">
+          </div>
+          <div class="col-md-3">
+            <select v-model="amountCondition" class="form-control">
+              <option value="equal">Equal</option>
+              <option value="greaterThan">Greater Than</option>
+              <option value="lessThan">Less Than</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input type="number" v-model="amountValue" class="form-control" placeholder="Amount">
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <div class="col-md-6">
+            <input type="text" v-model="fromIban" class="form-control" placeholder="From IBAN">
+          </div>
+          <div class="col-md-6">
+            <input type="text" v-model="toIban" class="form-control" placeholder="To IBAN">
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <div class="col-md-12 text-center">
+            <button class="btn btn-primary" @click="applyFilter">Apply Filter</button>
+          </div>
+        </div>
         <div v-if="transactions && transactions.length">
           <table class="table transaction-table text-white">
             <thead>
@@ -69,7 +100,7 @@
 
 <script>
 import { useTransactionsStore } from "../../stores/allTransactionsStore";
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
 export default {
   setup() {
@@ -79,6 +110,13 @@ export default {
     const transactions = computed(() => transactionsStore.transactions);
     const currentPage = computed(() => transactionsStore.currentPage);
     const totalPages = computed(() => transactionsStore.totalPages);
+
+    const startDate = ref(null);
+    const endDate = ref(null);
+    const amountCondition = ref('equal');
+    const amountValue = ref(null);
+    const fromIban = ref(null);
+    const toIban = ref(null);
 
     const formatCurrency = (value) => {
       return new Intl.NumberFormat("en-IE", {
@@ -98,10 +136,24 @@ export default {
       return new Date(dateString).toLocaleDateString("en-GB", options);
     };
 
+    const getFilteredParams = () => {
+      return {
+        fromIbanValue: fromIban.value && fromIban.value.trim() !== '' ? fromIban.value : null,
+        toIbanValue: toIban.value && toIban.value.trim() !== '' ? toIban.value : null,
+      };
+    };
+
     const setPage = (page) => {
       if (page > 0 && page <= totalPages.value) {
-        transactionsStore.setPage(page);
+        const { fromIbanValue, toIbanValue } = getFilteredParams();
+        transactionsStore.fetchTransactions(page, startDate.value, endDate.value, amountCondition.value, amountValue.value, fromIbanValue, toIbanValue);
       }
+    };
+
+    const applyFilter = () => {
+      const { fromIbanValue, toIbanValue } = getFilteredParams();
+
+      transactionsStore.fetchTransactions(1, startDate.value, endDate.value, amountCondition.value, amountValue.value, fromIbanValue, toIbanValue);
     };
 
     return {
@@ -111,6 +163,14 @@ export default {
       formatCurrency,
       formatDate,
       setPage,
+
+      startDate,
+      endDate,
+      amountCondition,
+      amountValue,
+      fromIban,
+      toIban,
+      applyFilter,
     };
   },
 };
