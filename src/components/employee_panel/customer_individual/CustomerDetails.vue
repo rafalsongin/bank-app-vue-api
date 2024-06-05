@@ -75,7 +75,7 @@
 
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
-      <div v-if="transactions.length">
+      <div v-if="transactions.length" class="table-responsive">
         <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
@@ -265,4 +265,8 @@ button:hover {
   color: #7bf2ad;
 }
 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
 </style>

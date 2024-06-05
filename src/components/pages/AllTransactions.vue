@@ -39,7 +39,7 @@
             <button class="btn btn-secondary" @click="clearFilters">Clear Filters</button>
           </div>
         </div>
-        <div v-if="transactions && transactions.length">
+        <div v-if="transactions && transactions.length" class="table-responsive">
           <table class="table transaction-table text-white">
             <thead>
               <tr>
@@ -191,5 +191,8 @@ export default {
 </script>
 
 <style scoped>
-
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
 </style>
