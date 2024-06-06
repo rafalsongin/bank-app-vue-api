@@ -52,10 +52,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="transaction in transactions"
-                :key="transaction.transaction_id"
-              >
+              <tr v-for="(transaction, index) in transactions" :key="index">
                 <td>{{ formatDate(transaction.timestamp) }}</td>
                 <td>{{ transaction.transactionType }}</td>
                 <td>{{ formatCurrency(transaction.amount) }}</td>

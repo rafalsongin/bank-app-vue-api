@@ -57,26 +57,12 @@ export const useCustomersStore = defineStore('customers', {
                     console.error("Error fetching accounts:", error);
                 });
         },
-        fetchTransactions(customerId) {
-            return axios
-                .get(`api/transactions/${customerId}`)
-                .then((response) => {
-                    this.transactions = response.data;
-                })
-                .catch((error) => {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Failed to fetch transactions",
-                        text: error.message,
-                    });
-                });
-        },        
         closeCustomerAccount(customerId) {
             axios
                 .put(`api/customers/closeAccount/${customerId}`)
                 .then((response) => {
                     if (response.status == 200) {
-                        this.fetchCustomers(); // Refresh the customer list after closing an account
+                        this.fetchCustomers(); 
                         if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
                             this.selectedCustomer.accountApprovalStatus = 'CLOSED';
                         }
@@ -141,8 +127,21 @@ export const useCustomersStore = defineStore('customers', {
                         text: error.message,
                     });
                 });
-        }
+        },
+        fetchTransactionsByIban(iban) {
+        return axios
+            .get(`/api/transactions/${iban}`)
+            .then((response) => {
+                return response;  
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to fetch transactions",
+                    text: error.message,
+                });
+            });
+        },
     },
-
 });
 
