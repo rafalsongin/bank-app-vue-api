@@ -48,7 +48,7 @@ export const useCustomersStore = defineStore('customers', {
             this.searchQuery = query;
         },
         fetchAccounts(customerId) {
-            axios
+            return axios
                 .get(`api/accounts/customer/${customerId}`)
                 .then((response) => {
                     this.accounts = response.data;
@@ -58,7 +58,7 @@ export const useCustomersStore = defineStore('customers', {
                 });
         },
         fetchTransactions(customerId) {
-            axios
+            return axios
                 .get(`api/transactions/${customerId}`)
                 .then((response) => {
                     this.transactions = response.data;
@@ -70,7 +70,7 @@ export const useCustomersStore = defineStore('customers', {
                         text: error.message,
                     });
                 });
-        },
+        },        
         closeCustomerAccount(customerId) {
             axios
                 .put(`api/customers/closeAccount/${customerId}`)

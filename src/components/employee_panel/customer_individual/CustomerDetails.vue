@@ -75,7 +75,8 @@
 
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
-      <div v-if="transactions.length" class="table-responsive">
+      <div v-if="loading">Loading transactions...</div>
+      <div v-else-if="transactions.length" class="table-responsive px-4">
         <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
@@ -113,7 +114,7 @@
 
 <script>
 import { useCustomersStore } from "../../../stores/customersStore";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 export default {
   props: {
@@ -124,13 +125,18 @@ export default {
   },
   setup(props) {
     const customersStore = useCustomersStore();
+    const loading = ref(true);
 
     const accounts = computed(() => customersStore.accounts);
     const transactions = computed(() => customersStore.transactions);
 
     onMounted(() => {
-      customersStore.fetchAccounts(props.customer.userId);
-      customersStore.fetchTransactions(props.customer.userId);
+      const fetchAccountsPromise = customersStore.fetchAccounts(props.customer.userId);
+      const fetchTransactionsPromise = customersStore.fetchTransactions(props.customer.userId);
+      
+      Promise.all([fetchAccountsPromise, fetchTransactionsPromise]).finally(() => {
+        loading.value = false;
+      });
     });
 
     const saveAccount = (account) => {
@@ -191,6 +197,7 @@ export default {
       formatDate,
       formatTransactionAmount,
       getTransactionClass,
+      loading,
     };
   },
 };
@@ -269,4 +276,5 @@ button:hover {
   width: 100%;
   overflow-x: auto;
 }
+
 </style>
