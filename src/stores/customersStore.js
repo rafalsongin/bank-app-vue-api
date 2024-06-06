@@ -130,7 +130,7 @@ export const useCustomersStore = defineStore('customers', {
         },
         fetchTransactionsByIban(iban) {
         return axios
-            .get(`/api/transactions/${iban}`)
+            .get(`/api/transactions/account/${iban}`)
             .then((response) => {
                 return response;  
             })
