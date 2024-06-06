@@ -24,7 +24,7 @@ export const useTransactionsStore = defineStore('transactionsStore', {
         };
         
         const response = await axios.get('api/transactions', { params });
-        if (response.data && response.data.content.length > 0) {
+        if (response.data && response.data.content.length <= 0) {
           this.transactions = response.data.content;
           this.currentPage = response.data.number + 1;
           this.totalPages = response.data.totalPages;
