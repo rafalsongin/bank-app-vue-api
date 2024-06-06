@@ -39,7 +39,7 @@
             <button class="btn btn-secondary" @click="clearFilters">Clear Filters</button>
           </div>
         </div>
-        <div v-if="transactions && transactions.length" class="table-responsive">
+        <div v-if="transactions.length" class="table-responsive">
           <table class="table transaction-table text-white">
             <thead>
               <tr>
