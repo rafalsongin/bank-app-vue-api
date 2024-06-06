@@ -126,7 +126,6 @@ export default {
   },
   setup(props) {
     const customersStore = useCustomersStore();
-    const loading = ref(true);
     const loadingTransactions = ref(false);
     const selectedAccount = ref(null);
     const transactions = ref([]);
@@ -134,9 +133,7 @@ export default {
     const accounts = computed(() => customersStore.accounts);
 
     onMounted(() => {
-      customersStore.fetchAccounts(props.customer.userId).finally(() => {
-        loading.value = false;
-      });
+      customersStore.fetchAccounts(props.customer.userId);
     });
 
     const saveAccount = (account) => {
@@ -213,7 +210,6 @@ export default {
       formatDate,
       formatTransactionAmount,
       getTransactionClass,
-      loading,
       loadingTransactions,
       selectedAccount
     };
