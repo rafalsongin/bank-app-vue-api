@@ -17,6 +17,8 @@ export const useTransactionFetchStore = defineStore('transactions', {
                     ...filters,
                   };
 
+                // to be updated
+                //const response = await axios.get(`https://www.songin.me/bankapp-backend/api/transactions/account/${accountIban}`, {
                 const response = await axios.get(`http://localhost:8080/api/transactions/accountId/${accountId}`, {
                     headers: {
                         'Content-Type': 'application/json',

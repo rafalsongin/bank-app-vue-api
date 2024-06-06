@@ -89,7 +89,7 @@ export default {
   methods: {
     async fetchCustomerDetails(email) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/customers/email/${email}`);
+        const response = await axios.get(`https://www.songin.me/bankapp-backend/api/customers/email/${email}`);
 
         if (response.status !== 200) {
           throw new Error("User was not found!");
