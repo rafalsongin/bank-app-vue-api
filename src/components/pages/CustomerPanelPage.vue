@@ -26,7 +26,8 @@
         </div>
         <div v-else-if="currentPanel === 'Settings'">
           <CustomerPanelSettings
-              :currentCustomer="currentCustomer" />
+              :currentCustomer="currentCustomer"
+              @customerUpdated="updateCustomerDetails" />
         </div>
       </div>
     </div>
@@ -94,6 +95,9 @@ export default {
           throw new Error("User was not found!");
         }
 
+        console.log("Customer Details:");
+        console.log(response.data);
+
         this.currentCustomer = response.data;
         this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
       } catch (error) {
@@ -106,7 +110,10 @@ export default {
     },
     async fetchCustomerAccounts(id) {
       try {
+        console.log("Pushed AccountId to fetch accounts: " + id);
         const response = await axios.get(`/api/accounts/customer/${id}`);
+
+        console.log(response.data);
 
         if (response.status !== 200) {
           throw new Error("Customer accounts were not found!");
@@ -115,11 +122,8 @@ export default {
         this.currentCustomer.accounts = response.data;
       } catch (error) {
         console.error('Error fetching customer accounts:', error);
-        /*this.$router.push("/404");*/
+        this.$router.push("/404");
       }
-    },
-    selectPanel(panel) {
-      this.currentPanel = panel;
     },
     isCurrentPanel(panel) {
       return panel === this.currentPanel ? 'current' : '';
@@ -134,6 +138,12 @@ export default {
           this.isNavigationDisabled =true;
           break;
       }
+    },
+    updateCustomerDetails(updatedCustomer) {
+      this.currentCustomer = updatedCustomer; // Added this method
+    },
+    selectPanel(panel) {
+      this.currentPanel = panel;
     }
   },
   created() {
