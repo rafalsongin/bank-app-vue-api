@@ -10,26 +10,30 @@ export const useTransactionsStore = defineStore('transactionsStore', {
     itemsPerPage: 5,
   }),
   actions: {
-    async fetchTransactions(page = 1) {
+    async fetchTransactions(page = 1, startDate = null, endDate = null, amountCondition = null, amountValue = null, fromIban = null, toIban = null) {
       try {
-        const response = await axios.get('api/transactions', {
-          params: {
-            page,
-            size: this.itemsPerPage,
-          },
-        });
+        const params = {
+          page,
+          size: this.itemsPerPage,
+          startDate,
+          endDate,
+          amountCondition,
+          amountValue,
+          fromIban,
+          toIban,
+        };
+        
+        const response = await axios.get('api/transactions', { params });
         if (response.data && response.data.content.length > 0) {
-            this.transactions = response.data.content; // Assuming your API returns a page object
-            this.currentPage = response.data.number + 1;
-            this.totalPages = response.data.totalPages;
-          } else {
-            this.transactions = [];
-            this.currentPage = 1;
-            this.totalPages = 1;
-          }
-  
-      } 
-      catch (error) {
+          this.transactions = response.data.content;
+          this.currentPage = response.data.number + 1;
+          this.totalPages = response.data.totalPages;
+        } else {
+          this.transactions = [];
+          this.currentPage = 1;
+          this.totalPages = 1;
+        }
+      } catch (error) {
         Swal.fire({
           icon: 'error',
           title: 'Error',
