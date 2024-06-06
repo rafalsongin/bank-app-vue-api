@@ -19,8 +19,18 @@
           <td>{{ customer.username }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
-            <button class="btn btn-verify fw-bold me-2" @click="verifyCustomer(customer.userId)">Verify</button>
-            <button class="btn btn-decline text-white fw-bold" @click="declineCustomer(customer.userId)">Decline</button>
+            <button
+              class="btn btn-verify fw-bold me-2"
+              @click="approveCustomer(customer.userId)"
+            >
+              Verify
+            </button>
+            <button
+              class="btn btn-decline text-white fw-bold"
+              @click="declineCustomer(customer.userId)"
+            >
+              Decline
+            </button>
           </td>
         </tr>
       </tbody>
@@ -29,54 +39,45 @@
 </template>
 
 <script>
-import axios from "../../../axios_auth";
+import { useCustomersStore } from "../../../stores/customersStore";
+import { computed } from "vue";
 
 export default {
-  props: {
-    customers: {
-      type: Array,
-      required: true
-    }
+  setup() {
+    const customersStore = useCustomersStore();
+
+    const filteredCustomers = computed(
+      () => customersStore.unverifiedCustomers
+    );
+
+    const approveCustomer = (userId) => {
+      customersStore.approveCustomer(userId);
+    };
+
+    const declineCustomer = (userId) => {
+      customersStore.declineCustomer(userId);
+    };
+
+    return {
+      filteredCustomers,
+      approveCustomer,
+      declineCustomer,
+    };
   },
-  computed: {
-    filteredCustomers() {
-      return this.customers.filter(customer => customer.accountApprovalStatus === 'UNVERIFIED');
-    }
-  },
-  methods: {
-    verifyCustomer(userId) {
-      axios.post(`/api/customers/approve/${userId}`)
-        .then((result) => {
-          console.log(result);
-          this.$emit('update');
-        })
-        .catch((error) => console.log(error));
-    },
-    declineCustomer(userId) {
-      axios.post(`/api/customers/decline/${userId}`)
-        .then((result) => {
-          console.log(result);
-          this.$emit('update');
-        })
-        .catch((error) => console.log(error));
-    }
-  }
-}
+};
 </script>
 
-
-<style>
-  .btn-verify{
-    background-color: #E8C547;
-  }
-  .btn-verify:hover {
-    background-color: #f8da8a; /* Green background on hover */
-
-  }
-  .btn-decline{
-    background-color: #5C80BC;
-  }
-  .btn-decline:hover{
-    background-color: #5588e3;
-  }
+<style scoped>
+.btn-verify {
+  background-color: #e8c547;
+}
+.btn-verify:hover {
+  background-color: #f8da8a; /* Green background on hover */
+}
+.btn-decline {
+  background-color: #5c80bc;
+}
+.btn-decline:hover {
+  background-color: #5588e3;
+}
 </style>

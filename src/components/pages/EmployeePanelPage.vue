@@ -20,10 +20,10 @@
         type="text"
         class="form-control me-2"
         placeholder="Search Customers"
-        v-model="searchQuery"
+        v-model="customersStore.searchQuery"
       />
     </div>
-    <div v-else class="d-flex justify-content-end align-items-center">
+    <div v-else class="d-flex justify-content align-items-center">
       <button
         @click="goBackToVerified"
         class="btn btn-toggle-view fw-bolder me-3"
@@ -36,14 +36,14 @@
       <component
         :is="currentView"
         :customers="filteredCustomers"
-        :customer="selectedCustomer"
-        @update="update"
+        :customer="customersStore.selectedCustomer"
+        @update="customersStore.fetchCustomers"
         @select-customer="showCustomerDetails"
       />
     </div>
     <div v-else>
       <customer-details
-        :customer="selectedCustomer"
+        :customer="customersStore.selectedCustomer"
         @go-back="goBackToVerified"
       />
     </div>
@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import { markRaw } from "vue";
-import axios from "../../axios_auth";
+import { shallowRef, computed } from "vue";
+import { useCustomersStore } from "../../stores/customersStore";
 import UnverifiedCustomers from "../employee_panel/customer_overview/UnverifiedCustomers.vue";
 import AllCustomers from "../employee_panel/customer_overview/AllCustomers.vue";
 import CustomerDetails from "../employee_panel/customer_individual/CustomerDetails.vue";
@@ -65,86 +65,86 @@ export default {
     CustomerDetails,
     VerifiedCustomers,
   },
-  data() {
-    return {
-      currentView: markRaw(AllCustomers),
-      isCustomerDetailsView: false,
-      toggleButtonTextUnverified: "Show Unverified Customers",
-      toggleButtonTextVerified: "Show Verified Customers",
-      customers: [],
-      selectedCustomer: null,
-      searchQuery: "", // Search term input by user
-    };
-  },
-  mounted() {
-    this.update();
-  },
-  computed: {
-    filteredCustomers() {
-      let filtered = this.customers;
-      if (this.searchQuery) {
-        const searchTerm = this.searchQuery.toLowerCase();
+  setup() {
+    const customersStore = useCustomersStore();
+    customersStore.fetchCustomers(); // Fetch customers on component mount
+
+    const currentView = shallowRef(AllCustomers);
+    const isCustomerDetailsView = shallowRef(false);
+    const toggleButtonTextUnverified = shallowRef("Show Unverified Customers");
+    const toggleButtonTextVerified = shallowRef("Show Verified Customers");
+
+    const filteredCustomers = computed(() => {
+      let filtered = customersStore.customers;
+      if (customersStore.searchQuery) {
+        const searchTerm = customersStore.searchQuery.toLowerCase();
         filtered = filtered.filter((customer) => {
           return Object.values(customer).some((value) =>
             String(value).toLowerCase().includes(searchTerm)
           );
         });
       }
-      if (this.currentView === UnverifiedCustomers) {
+      if (currentView.value === UnverifiedCustomers) {
         return filtered.filter(
           (customer) => customer.accountApprovalStatus === "UNVERIFIED"
         );
       }
-      if (this.currentView === VerifiedCustomers) {
+      if (currentView.value === VerifiedCustomers) {
         return filtered.filter(
           (customer) => customer.accountApprovalStatus === "VERIFIED"
         );
       }
       return filtered; // Return all customers for AllCustomers view
-    },
-  },
-  methods: {
-    update() {
-      axios
-        .get("/api/customers")
-        .then((result) => {
-          console.log(result); // for debugging
-          this.customers = result.data;
-        })
-        .catch((error) => console.log(error));
-    },
-    toggleViewUnverified() {
-      if (this.currentView !== UnverifiedCustomers) {
-        this.currentView = markRaw(UnverifiedCustomers);
-        this.toggleButtonTextUnverified = "Show All Customers";
-        this.toggleButtonTextVerified = "Show Verified Customers";
+    });
+
+    const toggleViewUnverified = () => {
+      if (currentView.value !== UnverifiedCustomers) {
+        currentView.value = UnverifiedCustomers;
+        toggleButtonTextUnverified.value = "Show All Customers";
+        toggleButtonTextVerified.value = "Show Verified Customers";
       } else {
-        this.currentView = markRaw(AllCustomers);
-        this.toggleButtonTextUnverified = "Show Unverified Customers";
-        this.toggleButtonTextVerified = "Show Verified Customers";
+        currentView.value = AllCustomers;
+        toggleButtonTextUnverified.value = "Show Unverified Customers";
+        toggleButtonTextVerified.value = "Show Verified Customers";
       }
-    },
-    toggleViewVerified() {
-      if (this.currentView !== VerifiedCustomers) {
-        this.currentView = markRaw(VerifiedCustomers);
-        this.toggleButtonTextVerified = "Show All Customers";
-        this.toggleButtonTextUnverified = "Show Unverified Customers";
+    };
+
+    const toggleViewVerified = () => {
+      if (currentView.value !== VerifiedCustomers) {
+        currentView.value = VerifiedCustomers;
+        toggleButtonTextVerified.value = "Show All Customers";
+        toggleButtonTextUnverified.value = "Show Unverified Customers";
       } else {
-        this.currentView = markRaw(AllCustomers);
-        this.toggleButtonTextVerified = "Show Verified Customers";
-        this.toggleButtonTextUnverified = "Show Unverified Customers";
+        currentView.value = AllCustomers;
+        toggleButtonTextVerified.value = "Show Verified Customers";
+        toggleButtonTextUnverified.value = "Show Unverified Customers";
       }
-    },
-    showCustomerDetails(customer) {
-      this.selectedCustomer = customer;
-      this.currentView = markRaw(CustomerDetails);
-      this.isCustomerDetailsView = true;
-    },
-    goBackToVerified() {
-      this.currentView = markRaw(VerifiedCustomers);
-      this.selectedCustomer = null;
-      this.isCustomerDetailsView = false;
-    },
+    };
+
+    const showCustomerDetails = (customer) => {
+      customersStore.setSelectedCustomer(customer);
+      currentView.value = CustomerDetails;
+      isCustomerDetailsView.value = true;
+    };
+
+    const goBackToVerified = () => {
+      currentView.value = VerifiedCustomers;
+      customersStore.setSelectedCustomer(null);
+      isCustomerDetailsView.value = false;
+    };
+
+    return {
+      customersStore,
+      currentView,
+      isCustomerDetailsView,
+      toggleButtonTextUnverified,
+      toggleButtonTextVerified,
+      filteredCustomers,
+      toggleViewUnverified,
+      toggleViewVerified,
+      showCustomerDetails,
+      goBackToVerified,
+    };
   },
 };
 </script>
@@ -156,12 +156,13 @@ export default {
 }
 
 .btn-toggle-view {
-  background-color: #829ecc;
+  background-color: #5c80bc;
   border-radius: 10px;
+  color: white;
 }
 .btn-toggle-view:focus {
-  outline: none; /* Removes the outline */
-  box-shadow: none; /* Optional: Removes any focus shadow, if there is one */
+  outline: none; 
+  box-shadow: none; 
 }
 .btn-toggle-view:hover {
   background-color: #6190d3;

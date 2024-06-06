@@ -2,41 +2,49 @@
   <div class="container my-4">
     <h2 class="mb-4">Create Transaction</h2>
     <form @submit.prevent="submitForm" class="needs-validation" novalidate>
-      <div class="mb-3">
-        <label for="transaction_type" class="form-label">Transaction Type:</label>
-        <select id="transaction_type" v-model="transaction.transaction_type" @change="selectTransactionType" class="form-select" required>
-          <option v-for="transactionType in transactionTypes" :key="transactionType" :value="transactionType">
-            {{ transactionType }}
-          </option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label for="amount" class="form-label">Amount:</label>
-        <input type="number" id="amount" v-model="transaction.amount" class="form-control" required />
-      </div>
-
-      <div class="mb-3">
-        <label for="from_account" class="form-label">From Account (IBAN):</label>
-        <select id="from_account" v-model="transaction.from_account" class="form-select" required>
-          <option v-for="account in currentCustomer.accounts" :key="account.iban" :value="account.iban">
-            {{ account.iban }}
-          </option>
-        </select>
-        <div v-if="selectedAccount" class="mt-2 text-muted">Balance: {{ selectedAccount.balance.toFixed(2) }}&#8364</div>
-      </div>
-
-      <div class="mb-3">
-        <label for="to_account" class="form-label">To Account (IBAN):</label>
-        <div v-if="transaction.transaction_type === 'Internal Transaction'">
-          <select id="to_account" v-model="transaction.to_account" class="form-select" required>
-            <option v-for="account in filteredToAccounts" :key="account.iban" :value="account.iban">
-              {{ account.iban }}
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <label for="transactionType" class="form-label">Transaction Type:</label>
+          <select id="transactionType" v-model="transaction.transactionType" @change="selectTransactionType" class="form-select" required>
+            <option v-for="transactionType in transactionTypes" :key="transactionType" :value="transactionType">
+              {{ transactionType }}
             </option>
           </select>
         </div>
-        <div v-else>
-          <input type="text" id="to_account" v-model="transaction.to_account" class="form-control" required />
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="amount" class="form-label">Amount:</label>
+          <input type="number" id="amount" v-model="transaction.amount" class="form-control" required />
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <label for="fromAccount" class="form-label">From Account (IBAN):</label>
+          <select id="fromAccount" v-model="transaction.fromAccount" class="form-select" required>
+            <option v-for="account in filteredFromAccounts" :key="account.iban" :value="account.iban">
+              {{ account.iban }}
+            </option>
+          </select>
+          <div v-if="selectedAccount" class="mt-2 text-muted">Balance: {{ selectedAccount.balance.toFixed(2) }}&#8364</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <label for="toAccount" class="form-label">To Account (IBAN):</label>
+          <div v-if="transaction.transactionType === 'Internal Transaction'">
+            <select id="toAccount" v-model="transaction.toAccount" class="form-select" required>
+              <option v-for="account in filteredToAccounts" :key="account.iban" :value="account.iban">
+                {{ account.iban }}
+              </option>
+            </select>
+          </div>
+          <div v-else>
+            <input type="text" id="toAccount" v-model="transaction.toAccount" class="form-control" required />
+          </div>
         </div>
       </div>
 
@@ -49,6 +57,7 @@
 import { useTransactionCreateStore } from '@/stores/transactionCreateStore';
 import { mapState, mapActions } from 'pinia';
 import DOMPurify from 'dompurify';
+import Swal from 'sweetalert2';
 
 export default {
   props: {
@@ -61,19 +70,27 @@ export default {
   },
   computed: {
     ...mapState(useTransactionCreateStore, ['transaction']),
+    filteredFromAccounts() {
+      if (this.currentCustomer && this.currentCustomer.accounts) {
+        if (this.transaction.transactionType === this.transactionTypes[1]) { // External
+          return this.currentCustomer.accounts.filter(account => account.accountType === "CHECKING");
+        } else {
+          return this.currentCustomer.accounts;
+        }
+      } else {
+        return [];
+      }
+    },
     filteredToAccounts() {
       if (this.currentCustomer && this.currentCustomer.accounts) {
-        if (this.transaction.transaction_type === this.transactionTypes[0]) {
-          const selectedAccount = this.currentCustomer.accounts.find(account => account.iban === this.transaction.from_account);
+        if (this.transaction.transactionType === this.transactionTypes[0]) { // Internal
+          const selectedAccount = this.currentCustomer.accounts.find(account => account.iban === this.transaction.fromAccount);
           return this.currentCustomer.accounts.filter(account =>
-              account.iban !== this.transaction.from_account &&
-              account.iban !== selectedAccount?.to_account
+            account.iban !== this.transaction.fromAccount &&
+            account.iban !== selectedAccount?.toAccount
           );
         } else {
-          return this.currentCustomer.accounts.filter(account =>
-              account.account_type === "CHECKING" &&
-              account.iban !== this.transaction.from_account
-          );
+          return [];
         }
       } else {
         return [];
@@ -81,7 +98,7 @@ export default {
     },
     selectedAccount() {
       if (this.currentCustomer && this.currentCustomer.accounts) {
-        return this.currentCustomer.accounts.find(account => account.iban === this.transaction.from_account);
+        return this.currentCustomer.accounts.find(account => account.iban === this.transaction.fromAccount);
       }
       return null;
     }
@@ -93,7 +110,7 @@ export default {
         this.sanitizeFields();
 
         if (!this.isTransferAmountValid(this.selectedAccount)) {
-          throw new Error('Invalid transfer amount');
+          throw Error("Invalid Transfer amount: " + error.message);
         }
 
         // Force setting the userId for transaction
@@ -101,55 +118,67 @@ export default {
 
         const response = await this.createTransaction(this.transaction);
         if(!response){
-          console.error('Error when creating transaction:', error.message);
-          return;
+          throw Error('There was an error creating the transaction. Please try again.');
         }
         else{
-          alert('Transaction created successfully!');
+
+          Swal.fire({
+            title: 'Success!',
+            text: 'Transaction created successfully!',
+            icon: 'success',
+            confirmButtonText: 'Cool'
+          });
           this.resetTransaction();
           this.refreshCustomerAccountData();
         }
-
       } catch (error) {
-        console.error('Error during form submission:', error.message);
-        alert(`Error: ${error.message}`);
+        Swal.fire({
+          title: 'Error!',
+          text: `Error: `+ error.message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     },
     isTransferAmountValid(selectedAccount) {
-      if (!selectedAccount) {
-        alert('From Account was not selected!');
-        return false;
-      } else {
-        if (this.transaction.amount > selectedAccount.balance || this.transaction.amount <= 0) {
-          alert('The amount of funds wanting to transfer is not enough.');
-          return false;
+      try{
+        if (!selectedAccount) {
+          throw Error('From Account was not selected!');
+        } else {
+          if(this.transaction.amount <= 0){
+            throw Error('Transaction amount is not valid!');
+          }
+          if ((this.selectedAccount.balance-this.transaction.amount) < selectedAccount.absoluteTransferLimit) {
+            throw Error('Absolute transfer amount reached!');
+          }
+          return true;
         }
-        return true;
+      }catch(error){
+        throw Error(error.message);
       }
     },
     selectTransactionType(event) {
-      this.transaction.from_account = "";
-      this.transaction.to_account = "";
-      this.transaction.transaction_type = event.target.value;
+      this.transaction.fromAccount = "";
+      this.transaction.toAccount = "";
+      this.transaction.transactionType = event.target.value;
     },
     setInitiatorCustomer(transaction){
-      transaction.initiated_by_account = this.currentCustomer.userId;
+      transaction.initiatedByUser = this.currentCustomer.userId;
     },
     refreshCustomerAccountData(){
       this.$emit('updateCustomerAccountData');
     },
     /* Sanitization on fe is for ux */
     sanitizeFields() {
-      this.transaction.transaction_type = DOMPurify.sanitize(this.transaction.transaction_type);
+      this.transaction.transactionType = DOMPurify.sanitize(this.transaction.transactionType);
       this.transaction.amount = DOMPurify.sanitize(this.transaction.amount);
-      this.transaction.from_account = DOMPurify.sanitize(this.transaction.from_account);
-      this.transaction.to_account = DOMPurify.sanitize(this.transaction.to_account);
-      this.transaction.initiated_by_account = DOMPurify.sanitize(this.transaction.initiated_by_account);
+      this.transaction.fromAccount = DOMPurify.sanitize(this.transaction.fromAccount);
+      this.transaction.toAccount = DOMPurify.sanitize(this.transaction.toAccount);
+      this.transaction.initiatedByUser = DOMPurify.sanitize(this.transaction.initiatedByUser);
     },
   }
 };
 </script>
-
 
 <style scoped>
 form div {

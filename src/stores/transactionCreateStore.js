@@ -4,11 +4,11 @@ import axios from 'axios';
 export const useTransactionCreateStore = defineStore('transaction', {
     state: () => ({
         transaction: {
-            transaction_type: 'Internal Transaction',
+            transactionType: 'Internal Transaction',
             amount: 0,
-            from_account: '', // should be IBAN
-            to_account: '', // should be IBAN
-            initiated_by_account: '', // for now, it takes account_id
+            fromAccount: '', // should be IBAN
+            toAccount: '', // should be IBAN
+            initiatedByUser: '', // for now, it takes account_id
         },
     }),
     actions: {

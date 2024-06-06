@@ -3,16 +3,14 @@
     <div class="container_customer_details">
       <h2 class="text-3xl font-bold mb-4">Customer Details</h2>
       <p class="text-lg mb-2">
-        <strong>Full Name:</strong> {{ customer.firstName }}
-        {{ customer.lastName }}
+        <strong>Full Name:</strong> {{ customer.firstName }} {{ customer.lastName }}
       </p>
       <p class="text-lg mb-2">
         <strong>Username:</strong> {{ customer.username }}
       </p>
       <p class="text-lg mb-2"><strong>Email:</strong> {{ customer.email }}</p>
       <p class="text-lg mb-2">
-        <strong>Customer Account Status:</strong>
-        {{ customer.accountApprovalStatus }}
+        <strong>Customer Account Status:</strong> {{ customer.accountApprovalStatus }}
       </p>
       <button
         @click="closeCustomerAccount"
@@ -29,7 +27,8 @@
         <div
           v-for="account in accounts"
           :key="account.iban"
-          class="account-details bg-white rounded-lg shadow-md"
+          @click="loadAccountTransactions(account)"
+          class="account-details text-white rounded-lg shadow-md"
         >
           <p class="text-lg mb-2">
             <strong>Account Type:</strong> {{ account.accountType }}
@@ -75,48 +74,48 @@
 
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
-      <div v-if="transactions.length">
-        <table class="transaction-table text-white table align-middle">
+      <p class="text-sm font-semibold mb-4">Account: {{ selectedAccount ? selectedAccount.iban : "Select an account" }}</p>
+      <div v-if="loadingTransactions">Loading transactions...</div>
+      <div v-else-if="transactions.length" class="table-responsive px-4">
+        <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
-              <th>Timestamp</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Sender</th>
-              <th>From Account</th>
-              <th>Account Type</th>
-              <th>Recipient</th>
-              <th>To Account</th>
-              <th>Account Type</th>
+              <th class="bg-cell">Timestamp</th>
+              <th class="bg-cell">Type</th>
+              <th class="bg-cell">Amount</th>
+              <th class="bg-cell">From Account</th>
+              <th class="bg-cell">To Account</th>
+              <th class="bg-cell">Initiated by user</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="transaction in transactions"
-              :key="transaction.transaction_id"
+              v-for="(transaction, index) in transactions"
+              :key="index"
             >
-              <td>{{ formatDate(transaction.timestamp) }}</td>
-              <td>{{ transaction.transaction_type }}</td>
-              <td>{{ formatCurrency(transaction.amount) }}</td>
-              <td>{{ transaction.fromAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.fromAccountEntity.iban }}</td>
-              <td>{{ transaction.fromAccountEntity.accountType }}</td>
-              <td>{{ transaction.toAccountEntity.customerFullName }}</td>
-              <td>{{ transaction.toAccountEntity.iban }}</td>
-              <td>{{ transaction.toAccountEntity.accountType }}</td>
+              <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
+              <td class="bg-cell">{{ transaction.transactionType }}</td>
+              <td class="bg-cell" :class="getTransactionClass(transaction)">
+                {{ formatTransactionAmount(transaction) }}
+              </td>
+              <td class="bg-cell">{{ transaction.fromAccount }}</td>
+              <td class="bg-cell">{{ transaction.toAccount }}</td>
+              <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div v-else>
-        <p>No transactions found.</p>
+        No transactions found.
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
-import axios from "../../../axios_auth";
+import { useCustomersStore } from "../../../stores/customersStore";
+import { computed, onMounted, ref } from "vue";
 
 export default {
   props: {
@@ -125,50 +124,49 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      accounts: [],
-      transactions: [],
+  setup(props) {
+    const customersStore = useCustomersStore();
+    const loadingTransactions = ref(false);
+    const selectedAccount = ref(null);
+    const transactions = ref([]);
+
+    const accounts = computed(() => customersStore.accounts);
+
+    onMounted(() => {
+      customersStore.fetchAccounts(props.customer.userId);
+    });
+
+    const saveAccount = (account) => {
+      customersStore.saveAccount(account);
     };
-  },
-  mounted() {
-    this.fetchAccounts();
-    this.fetchTransactions();
-  },
-  methods: {
-    fetchAccounts() {
-      axios
-        .get(`api/accounts/customer/${this.customer.userId}`)
-        .then((response) => {
-          this.accounts = response.data;
-          console.log(this.accounts);
+
+    const closeCustomerAccount = async () => {
+      await customersStore.closeCustomerAccount(props.customer.userId);
+    };
+
+    const loadAccountTransactions = (account) => {
+      selectedAccount.value = account;
+      loadingTransactions.value = true;
+      customersStore.fetchTransactionsByIban(account.iban)
+      .then((response) => {
+          transactions.value = response.data;
         })
         .catch((error) => {
-          console.error("Error fetching accounts:", error);
-        });
-    },
-    saveAccount(account) {
-      axios
-        .put(`api/accounts/changeAccount/${account.accountId}`, {
-          absoluteTransferLimit: account.absoluteTransferLimit,
-          dailyTransferLimit: account.dailyTransferLimit,
+          console.error("Failed to fetch transactions:", error);
         })
-        .then((response) => {
-          console.log("Account updated successfully:", response.data);
-          alert("Account limits updated successfully");
-        })
-        .catch((error) => {
-          console.error("Error updating account:", error);
-          alert("Failed to update account limits");
+        .finally(() => {
+          loadingTransactions.value = false;
         });
-    },
-    formatCurrency(value) {
+    };
+
+    const formatCurrency = (value) => {
       return new Intl.NumberFormat("en-IE", {
         style: "currency",
         currency: "EUR",
       }).format(value);
-    },
-    formatDate(dateString) {
+    };
+
+    const formatDate = (dateString) => {
       const options = {
         year: "numeric",
         month: "numeric",
@@ -177,46 +175,60 @@ export default {
         minute: "2-digit",
       };
       return new Date(dateString).toLocaleDateString("en-GB", options);
-    },
-    closeCustomerAccount() {
-      axios
-        .put(`api/customers/closeAccount/${this.customer.userId}`)
-        .then((response) => {
-          this.$emit("update");
-          console.log("Customer account closed successfully:", response.data);
-          alert("Customer account closed successfully");
-        })
-        .catch((error) => {
-          console.error("Error closing customer account:", error);
-          alert("Failed to close customer account");
-        });
-    },
-    fetchTransactions() {
-      axios
-        .get(`api/customers/transactions/${this.customer.userId}`)
-        .then((response) => {
-          this.transactions = response.data;
-          console.log(this.transactions);
-        })
-        .catch((error) => {
-          console.error("Error fetching transactions:", error);
-        });
-    },
+    };
+
+    const isOutgoingTransaction = (transaction) => {
+      return selectedAccount.value && transaction.fromAccount === selectedAccount.value.iban;
+    };
+
+    const isIncomingTransaction = (transaction) => {
+      return selectedAccount.value && transaction.toAccount === selectedAccount.value.iban;
+    };
+
+    const formatTransactionAmount = (transaction) => {
+      const formattedAmount = formatCurrency(transaction.amount);
+      return isOutgoingTransaction(transaction) ? `-${formattedAmount}` : `+${formattedAmount}`;
+    };
+
+    const getTransactionClass = (transaction) => {
+      if (isOutgoingTransaction(transaction)) {
+        return 'red-amount';
+      } else if (isIncomingTransaction(transaction)) {
+        return 'green-amount';
+      } else {
+        return '';
+      }
+    };
+
+    return {
+      accounts,
+      transactions,
+      saveAccount,
+      closeCustomerAccount,
+      loadAccountTransactions,
+      formatCurrency,
+      formatDate,
+      formatTransactionAmount,
+      getTransactionClass,
+      loadingTransactions,
+      selectedAccount
+    };
   },
 };
 </script>
+
 
 <style scoped>
 .customer-details {
   border: 1px solid #ccc;
   border-radius: 10px;
-  background: #fff;
+  background-color: rgb(255, 255, 255);
   margin-top: 10px;
 }
 
 .account-details {
-  background: #fff;
-  border: 1px solid #ccc;
+  background-color: #4d5061;
+  border: 1px, solid rgb(0, 0, 0);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -255,12 +267,29 @@ button:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: rgb(0, 0, 0);
   margin-top: 20px;
 }
 
 .transaction-table {
-  background-color: #4d5061;
-  border-radius: 10px;
+    border-radius: 10px;
 }
+
+.bg-cell {
+  background-color: #4d5061;
+  color: white;
+}
+
+.red-amount {
+  color: #f79797;
+}
+
+.green-amount {
+  color: #7bf2ad;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
 </style>
