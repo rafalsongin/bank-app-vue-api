@@ -79,7 +79,7 @@ export const useCustomersStore = defineStore('customers', {
                         this.fetchCustomers(); // Refresh the customer list after closing an account
                         if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
                             this.selectedCustomer.accountApprovalStatus = 'CLOSED';
-                          }
+                        }
                         Swal.fire({
                             icon: "success",
                             title: "Customer account closed successfully",
@@ -124,7 +124,7 @@ export const useCustomersStore = defineStore('customers', {
         },
         saveAccount(account) {
             axios
-                .put(`api/accounts/changeAccount/${account.accountId}`, {
+                .put(`api/accounts/changeAccount/${account.iban}`, {
                     absoluteTransferLimit: account.absoluteTransferLimit,
                     dailyTransferLimit: account.dailyTransferLimit,
                 })
