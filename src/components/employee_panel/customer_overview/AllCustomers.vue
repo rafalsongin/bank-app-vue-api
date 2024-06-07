@@ -26,7 +26,18 @@
 <script>
 export default {
   props: {
-    customers: Array
-  }
-}
+    customers: Array,
+  },
+};
 </script>
+
+<style scoped>
+tr th {
+  background-color: #343a40;
+  color: white;
+}
+
+tbody td:nth-child(odd) {
+  background-color: rgb(249, 249, 249);
+}
+</style>

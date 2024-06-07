@@ -80,4 +80,13 @@ export default {
 .btn-decline:hover {
   background-color: #5588e3;
 }
+
+tr th {
+  background-color: #343a40;
+  color: white;
+}
+
+tbody td:nth-child(odd) {
+  background-color: rgb(249, 249, 249);
+}
 </style>
