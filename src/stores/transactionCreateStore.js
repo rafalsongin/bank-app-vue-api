@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import axios from '../axios_auth';
 
 export const useTransactionCreateStore = defineStore('transaction', {
     state: () => ({
@@ -19,7 +19,8 @@ export const useTransactionCreateStore = defineStore('transaction', {
                     throw new Error('JWT token is missing');
                 }
 
-                const response = await axios.post('https://www.songin.me/bankapp-backend/api/transactions', transactionData, {
+
+                const response = await axios.post('api/transactions', transactionData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,

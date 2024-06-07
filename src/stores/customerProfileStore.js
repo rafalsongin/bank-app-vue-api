@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import axios from '../axios_auth';
 import Swal from 'sweetalert2';
 
 export const useCustomerStore = defineStore('customer', {
@@ -12,7 +12,7 @@ export const useCustomerStore = defineStore('customer', {
                 const { email, username, firstName, lastName, phoneNumber, bsn } = customerDetails;
                 const token = localStorage.getItem('token');
 
-                const response = await axios.put('http://localhost:8080/api/customers', {
+                const response = await axios.put('api/customers', {
                     email,
                     username,
                     firstName,
