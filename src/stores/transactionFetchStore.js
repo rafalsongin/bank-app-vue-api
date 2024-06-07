@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import axios from '../axios_auth';
 
 export const useTransactionFetchStore = defineStore('transactions', {
     state: () => ({
@@ -17,9 +17,8 @@ export const useTransactionFetchStore = defineStore('transactions', {
                     ...filters,
                   };
 
-                // to be updated
-                //const response = await axios.get(`https://www.songin.me/bankapp-backend/api/transactions/account/${accountIban}`, {
-                const response = await axios.get(`http://localhost:8080/api/transactions/accountId/${accountId}`, {
+                //const response = await axios.get(`api/transactions/account/${accountIban}`, {
+                const response = await axios.get(`api/transactions/accountId/${accountId}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
