@@ -38,17 +38,17 @@
 </template>
 
 <script>
-import { searchCustomerIbanByName } from "../../../stores/searchCustomerIbanByNameStore";
+import { searchCustomerIbanByName } from "../../stores/searchCustomerIbanByNameStore";
 
 export default {
   setup() {
-    const searchCustomerIbanByName = searchCustomerIbanByName();
+    const store = searchCustomerIbanByName();
 
     return {
-      firstName: searchCustomerIbanByName.firstName,
-      lastName: searchCustomerIbanByName.lastName,
-      iban: searchCustomerIbanByName.iban,
-      searchUser: searchCustomerIbanByName.searchUser,
+      firstName: store.firstName,
+      lastName: store.lastName,
+      iban: store.iban,
+      searchUser: store.searchUser,
     };
   },
 };
