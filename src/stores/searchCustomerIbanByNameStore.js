@@ -1,4 +1,3 @@
-
 import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import Swal from 'sweetalert2';

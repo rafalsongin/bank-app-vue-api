@@ -38,47 +38,18 @@
 </template>
 
 <script>
-import axios from "../../axios_auth";
-import Swal from "sweetalert2";
+import { searchCustomerIbanByName } from "../../../stores/searchCustomerIbanByNameStore";
 
 export default {
-  props: {
-    currentCustomer: Object,
-  },
+  setup() {
+    const searchCustomerIbanByName = searchCustomerIbanByName();
 
-  data() {
     return {
-      firstName: "",
-      lastName: "",
-      iban: null,
+      firstName: searchCustomerIbanByName.firstName,
+      lastName: searchCustomerIbanByName.lastName,
+      iban: searchCustomerIbanByName.iban,
+      searchUser: searchCustomerIbanByName.searchUser,
     };
-  },
-
-  methods: {
-    async searchUser() {
-      try {
-        const response = await axios.get(
-          `/api/customers/getIbanByCustomerName/${this.firstName}/${this.lastName}`
-        );
-        if (response.status === 204) {
-          this.iban = null;
-          Swal.fire("No IBAN found", "", "info");
-        } else {
-          this.iban = response.data;
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          this.iban = null;
-          Swal.fire("No IBAN found", "", "info");
-        } else {
-          Swal.fire(
-            "Error",
-            "An error occurred while searching for the IBAN",
-            "error"
-          );
-        }
-      }
-    },
   },
 };
 </script>
