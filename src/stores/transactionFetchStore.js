@@ -29,10 +29,13 @@ export const useTransactionFetchStore = defineStore('transactions', {
                 
                 if (response.status === 200 || response.status === 201) {
                     this.transactions = response.data;
+                } else if (response.status === 204) {
+                    this.transactions = [];
                 } else {
-                    throw new Error(response.data.message);
+                    throw new Error("Error when fetching transactions:", error.message);
                 }
             } catch (error) {
+                this.transactions = [];
                 throw new Error(error.message);
             }
         },

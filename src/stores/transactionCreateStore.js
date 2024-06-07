@@ -19,6 +19,7 @@ export const useTransactionCreateStore = defineStore('transaction', {
                     throw new Error('JWT token is missing');
                 }
 
+
                 const response = await axios.post('api/transactions', transactionData, {
                     headers: {
                         'Content-Type': 'application/json',

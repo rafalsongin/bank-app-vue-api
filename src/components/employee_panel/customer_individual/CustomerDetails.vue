@@ -3,16 +3,14 @@
     <div class="container_customer_details">
       <h2 class="text-3xl font-bold mb-4">Customer Details</h2>
       <p class="text-lg mb-2">
-        <strong>Full Name:</strong> {{ customer.firstName }}
-        {{ customer.lastName }}
+        <strong>Full Name:</strong> {{ customer.firstName }} {{ customer.lastName }}
       </p>
       <p class="text-lg mb-2">
         <strong>Username:</strong> {{ customer.username }}
       </p>
       <p class="text-lg mb-2"><strong>Email:</strong> {{ customer.email }}</p>
       <p class="text-lg mb-2">
-        <strong>Customer Account Status:</strong>
-        {{ customer.accountApprovalStatus }}
+        <strong>Customer Account Status:</strong> {{ customer.accountApprovalStatus }}
       </p>
       <button
         @click="closeCustomerAccount"
@@ -29,6 +27,7 @@
         <div
           v-for="account in accounts"
           :key="account.iban"
+          @click="loadAccountTransactions(account)"
           class="account-details text-white rounded-lg shadow-md"
         >
           <p class="text-lg mb-2">
@@ -75,7 +74,9 @@
 
     <div class="container_customer_details my-3">
       <h3 class="text-3xl font-semibold mb-4">Transactions</h3>
-      <div v-if="transactions.length" class="table-responsive">
+      <p class="text-sm font-semibold mb-4">Account: {{ selectedAccount ? selectedAccount.iban : "Select an account" }}</p>
+      <div v-if="loadingTransactions">Loading transactions...</div>
+      <div v-else-if="transactions.length" class="table-responsive px-4">
         <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
@@ -89,31 +90,32 @@
           </thead>
           <tbody>
             <tr
-              v-for="transaction in transactions"
-              :key="transaction.transaction_id"
+              v-for="(transaction, index) in transactions"
+              :key="index"
             >
-                <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
-                <td class="bg-cell">{{ transaction.transactionType }}</td>
-                <td class="bg-cell" :class="getTransactionClass(transaction)">
+              <td class="bg-cell">{{ formatDate(transaction.timestamp) }}</td>
+              <td class="bg-cell">{{ transaction.transactionType }}</td>
+              <td class="bg-cell" :class="getTransactionClass(transaction)">
                 {{ formatTransactionAmount(transaction) }}
-              </td>          
-                <td class="bg-cell">{{ transaction.fromAccount }}</td>
-                <td class="bg-cell">{{ transaction.toAccount }}</td>
-                <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
+              </td>
+              <td class="bg-cell">{{ transaction.fromAccount }}</td>
+              <td class="bg-cell">{{ transaction.toAccount }}</td>
+              <td class="bg-cell">{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div v-else>
-        <p>No transactions found.</p>
+        No transactions found.
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
 import { useCustomersStore } from "../../../stores/customersStore";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 export default {
   props: {
@@ -124,13 +126,14 @@ export default {
   },
   setup(props) {
     const customersStore = useCustomersStore();
+    const loadingTransactions = ref(false);
+    const selectedAccount = ref(null);
+    const transactions = ref([]);
 
     const accounts = computed(() => customersStore.accounts);
-    const transactions = computed(() => customersStore.transactions);
 
     onMounted(() => {
       customersStore.fetchAccounts(props.customer.userId);
-      customersStore.fetchTransactions(props.customer.userId);
     });
 
     const saveAccount = (account) => {
@@ -139,6 +142,21 @@ export default {
 
     const closeCustomerAccount = async () => {
       await customersStore.closeCustomerAccount(props.customer.userId);
+    };
+
+    const loadAccountTransactions = (account) => {
+      selectedAccount.value = account;
+      loadingTransactions.value = true;
+      customersStore.fetchTransactionsByIban(account.iban)
+      .then((response) => {
+          transactions.value = response.data;
+        })
+        .catch((error) => {
+          console.error("Failed to fetch transactions:", error);
+        })
+        .finally(() => {
+          loadingTransactions.value = false;
+        });
     };
 
     const formatCurrency = (value) => {
@@ -160,11 +178,11 @@ export default {
     };
 
     const isOutgoingTransaction = (transaction) => {
-      return accounts.value.some(account => account.iban === transaction.fromAccount);
+      return selectedAccount.value && transaction.fromAccount === selectedAccount.value.iban;
     };
 
     const isIncomingTransaction = (transaction) => {
-      return accounts.value.some(account => account.iban === transaction.toAccount);
+      return selectedAccount.value && transaction.toAccount === selectedAccount.value.iban;
     };
 
     const formatTransactionAmount = (transaction) => {
@@ -187,14 +205,18 @@ export default {
       transactions,
       saveAccount,
       closeCustomerAccount,
+      loadAccountTransactions,
       formatCurrency,
       formatDate,
       formatTransactionAmount,
       getTransactionClass,
+      loadingTransactions,
+      selectedAccount
     };
   },
 };
 </script>
+
 
 <style scoped>
 .customer-details {
@@ -269,4 +291,5 @@ button:hover {
   width: 100%;
   overflow-x: auto;
 }
+
 </style>

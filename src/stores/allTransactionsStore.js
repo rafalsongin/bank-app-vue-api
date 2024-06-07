@@ -7,7 +7,7 @@ export const useTransactionsStore = defineStore('transactionsStore', {
     transactions: [],
     currentPage: 1,
     totalPages: 1,
-    itemsPerPage: 5,
+    itemsPerPage: 10,
   }),
   actions: {
     async fetchTransactions(page = 1, startDate = null, endDate = null, amountCondition = null, amountValue = null, fromIban = null, toIban = null) {
@@ -24,6 +24,7 @@ export const useTransactionsStore = defineStore('transactionsStore', {
         };
         
         const response = await axios.get('api/transactions', { params });
+        console.log(response.data);
         if (response.data && response.data.content.length > 0) {
           this.transactions = response.data.content;
           this.currentPage = response.data.number + 1;

@@ -39,7 +39,7 @@
             <button class="btn btn-secondary" @click="clearFilters">Clear Filters</button>
           </div>
         </div>
-        <div v-if="transactions && transactions.length" class="table-responsive">
+        <div v-if="transactions.length" class="table-responsive">
           <table class="table transaction-table text-white">
             <thead>
               <tr>
@@ -52,10 +52,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="transaction in transactions"
-                :key="transaction.transaction_id"
-              >
+              <tr v-for="(transaction, index) in transactions" :key="index">
                 <td>{{ formatDate(transaction.timestamp) }}</td>
                 <td>{{ transaction.transactionType }}</td>
                 <td>{{ formatCurrency(transaction.amount) }}</td>
