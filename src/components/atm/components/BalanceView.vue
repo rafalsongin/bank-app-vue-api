@@ -7,41 +7,22 @@
 </template>
 
 <script>
-import {ref, onMounted, computed} from 'vue';
-import {useAtmStore} from '@/stores/AtmStore';
-import Swal from 'sweetalert2';
+import {ref, computed} from 'vue';
 
 export default {
+  props: {
+    balance: {
+      type: Number,
+      required: true
+    }
+  },
   setup(props, {emit}) {
-    const store = useAtmStore();
-    const balance = ref(0);
-
-    const fetchBalance = async () => {
-      try {
-        balance.value = await store.getBalance();
-      } catch (error) {
-        console.error('Error fetching balance:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch balance',
-          showConfirmButton: true
-        });
-        balance.value = 0; // Ensure balance is set to a default value if an error occurs
-      }
-    };
-
     const goBack = () => {
       emit('go-back');
     };
 
-    onMounted(() => {
-      fetchBalance();
-    });
-
     return {
-      balance,
-      formattedBalance: computed(() => balance.value.toFixed(2)),
+      formattedBalance: computed(() => props.balance.toFixed(2)),
       goBack
     };
   }
