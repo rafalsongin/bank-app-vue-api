@@ -11,20 +11,31 @@ export const searchCustomerIbanByName = defineStore('customer', {
     actions: {
         async searchUser() {
             try {
+                if (!this.firstName || !this.lastName) {
+                    Swal.fire("First Name and Last Name are required", "", "warning");
+                    return;
+                }
+
                 const response = await axios.get(
-                    `/api/customers/getIbanByCustomerName/${this.firstName}/${this.lastName}`
+                    `api/customers/getIbanByCustomerName/${this.firstName}/${this.lastName}`
                 );
                 if (response.status === 204) {
                     this.iban = null;
                     Swal.fire("No IBAN found", "", "info");
-                } else {
+                }
+                else {
                     this.iban = response.data;
                 }
             } catch (error) {
-                if (error.response && error.response.status === 404) {
+                if (error.response && error.response.status === 400) {
+                    this.iban = null;
+                    Swal.fire("Bad Request", error.response.data, "info");
+                }
+                else if (error.response && error.response.status === 404) {
                     this.iban = null;
                     Swal.fire("No IBAN found", "", "info");
-                } else {
+                }
+                else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',

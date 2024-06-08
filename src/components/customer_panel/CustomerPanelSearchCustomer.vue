@@ -2,7 +2,7 @@
   <header class="mb-4">
     <h2>Customer Settings</h2>
   </header>
-  <div v-if="currentCustomer != null" class="container my-4">
+  <div class="container my-4">
     <div class="form-group">
       <label for="firstName">First Name</label>
       <input
@@ -39,16 +39,29 @@
 
 <script>
 import { searchCustomerIbanByName } from "../../stores/searchCustomerIbanByNameStore";
+import { ref, computed } from "vue";
 
 export default {
+  props: { currentCustomer: Object },
   setup() {
     const store = searchCustomerIbanByName();
 
+    const firstName = ref(store.firstName);
+    const lastName = ref(store.lastName);
+
+    const iban = computed(() => store.iban);
+
+    const searchUser = () => {
+      store.firstName = firstName.value;
+      store.lastName = lastName.value;
+      store.searchUser();
+    };
+
     return {
-      firstName: store.firstName,
-      lastName: store.lastName,
-      iban: store.iban,
-      searchUser: store.searchUser,
+      firstName,
+      lastName,
+      iban,
+      searchUser,
     };
   },
 };

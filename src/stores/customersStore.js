@@ -62,7 +62,7 @@ export const useCustomersStore = defineStore('customers', {
                 .put(`api/customers/closeAccount/${customerId}`)
                 .then((response) => {
                     if (response.status == 200) {
-                        this.fetchCustomers(); 
+                        this.fetchCustomers();
                         if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
                             this.selectedCustomer.accountApprovalStatus = 'CLOSED';
                         }
@@ -73,11 +73,17 @@ export const useCustomersStore = defineStore('customers', {
                     }
                 })
                 .catch((error) => {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Failed to close customer account",
-                        text: error.message,
-                    });
+                    if (error.response && error.response.status === 400) {
+                        this.iban = null;
+                        Swal.fire("Bad Request", error.response.data, "info");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to close customer account",
+                            text: error.message,
+                        });
+                    }
                 });
         },
         approveCustomer(userId) {
@@ -129,18 +135,18 @@ export const useCustomersStore = defineStore('customers', {
                 });
         },
         fetchTransactionsByIban(iban) {
-        return axios
-            .get(`/api/transactions/account/${iban}`)
-            .then((response) => {
-                return response;  
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Failed to fetch transactions",
-                    text: error.message,
+            return axios
+                .get(`/api/transactions/account/${iban}`)
+                .then((response) => {
+                    return response;
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed to fetch transactions",
+                        text: error.message,
+                    });
                 });
-            });
         },
     },
 });
