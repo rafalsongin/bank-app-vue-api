@@ -109,8 +109,34 @@
             </tr>
           </tbody>
         </table>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === 1 }"
+                @click="setPage(currentPage - 1)"
+              >
+                <a class="page-link" href="#">Previous</a>
+              </li>
+              <li
+                class="page-item"
+                v-for="page in totalPages"
+                :key="page"
+                :class="{ active: currentPage === page }"
+                @click="setPage(page)"
+              >
+                <a class="page-link" href="#">{{ page }}</a>
+              </li>
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === totalPages }"
+                @click="setPage(currentPage + 1)"
+              >
+                <a class="page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
       </div>
-      <div v-else>No transactions found.</div>
     </div>
   </div>
 </template>
@@ -129,9 +155,11 @@ export default {
   setup(props) {
     const customersStore = useCustomersStore();
     const selectedAccount = ref(null);
-    const transactions = ref([]);
-
     const accounts = computed(() => customersStore.accounts);
+
+    const transactions = computed(() => customersStore.transactions);
+    const currentPage = computed(() => customersStore.currentPage);
+    const totalPages = computed(() => customersStore.totalPages);
 
     onMounted(() => {
       customersStore.fetchAccounts(props.customer.userId);
@@ -145,13 +173,18 @@ export default {
       customersStore.closeCustomerAccount(props.customer.userId);
     };
 
-    const loadAccountTransactions = async (account) => {
+    const loadAccountTransactions = (account) => {
       selectedAccount.value = account;
+      customersStore.fetchTransactionsByIban(account.iban);
+    };
 
-      const result = await customersStore.fetchTransactionsByIban(account.iban);
-      if (result.success) {
-          transactions.value = result.data;
-      };
+    const setPage = (page) => {
+      if (page > 0 && page <= totalPages.value) {
+        customersStore.fetchTransactionsByIban(
+        selectedAccount.value.iban,
+        page,
+        );
+      }
     };
 
     const formatCurrency = (value) => {
@@ -206,6 +239,9 @@ export default {
     return {
       accounts,
       transactions,
+      currentPage,
+      totalPages,
+      setPage,
       saveAccount,
       closeCustomerAccount,
       loadAccountTransactions,

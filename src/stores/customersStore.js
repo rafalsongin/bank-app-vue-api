@@ -10,6 +10,9 @@ export const useCustomersStore = defineStore('customers', {
         searchQuery: '',
         accounts: [],
         transactions: [],
+        currentPage: 1,
+        totalPages: 1,
+        itemsPerPage: 10,
     }),
     getters: {
         filteredCustomers: (state) => {
@@ -71,41 +74,47 @@ export const useCustomersStore = defineStore('customers', {
                         text: error.message,
                     });
                 });
-
-
         },
-        closeCustomerAccount(customerId) {
-            axios
-                .put(`api/customers/close/${customerId}`)
-                .then((response) => {
-                    if (response.status == 200) {
-                        this.fetchCustomers();
-                        if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
-                            this.selectedCustomer.accountApprovalStatus = 'CLOSED';
-                        }
-                        Swal.fire({
-                            icon: "success",
-                            title: "Customer account closed successfully",
-                        });
-                    }
-                })
-                .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        Swal.fire("Bad Request", error.response.data, "info");
-                    }
-                    else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Failed to close customer account",
-                            text: error.message,
-                        });
-                    }
+        async closeCustomerAccount(customerId) {
+            try {
+                const result = await Swal.fire({
+                  title: 'Are you sure?',
+                  text: "You won't be able to revert this!",
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: 'Yes, close it!'
                 });
+                if (result.isConfirmed) {
+                    const response = await axios.put(`/api/customers/close/${customerId}`);
+                    if (response.status === 200) {
+                      this.fetchCustomers();
+                      if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
+                        this.selectedCustomer.accountApprovalStatus = 'CLOSED';
+                      }
+                      Swal.fire({
+                        icon: "success",
+                        title: "Customer account closed successfully",
+                      });
+                    }
+                  }
+                } catch (error) {
+                  if (error.response && error.response.status === 400) {
+                    Swal.fire("Bad Request", error.response.data, "info");
+                  } else {
+                    Swal.fire({
+                      icon: "error",
+                      title: "Failed to close customer account",
+                      text: error.message,
+                    });
+                }
+            }          
         },
         approveCustomer(userId) {
             axios
                 .post(`/api/customers/approve/${userId}`)
-                .then((result) => {
+                .then((response) => {
                     if (response.status == 200) {
                         this.fetchCustomers();
                     }
@@ -169,15 +178,16 @@ export const useCustomersStore = defineStore('customers', {
                     }
                 });
         },
-        async fetchTransactionsByIban(iban) {
+        async fetchTransactionsByIban( iban, page = 1) {
             Swal.fire({
                 title: 'Loading...',
-                text: 'Please wait while transactions are being fetched',
+                text: 'Please wait while transactions are loading',
                 allowOutsideClick: false,
                 didOpen: () => {
-                    Swal.showLoading();
+                 Swal.showLoading();
                 },
             });
+
             try {
                 const authStore = useAuthStore();
                 const username = authStore.username;
@@ -185,12 +195,30 @@ export const useCustomersStore = defineStore('customers', {
                 if (!username || !role) {
                     throw new Error("User not found!");        
                 }
-                const params = {username, role,};
+                const params = {
+                    username, 
+                    role, 
+                    page,
+                    size: this.itemsPerPage,
+                };
                 const response = await axios.get(`/api/transactions/account/${iban}`, { params });
-
-                if (response.status === 200) {
-                    return { success: true, data: response.data };
+                if (response.status == 200) {
+                    if (response.data && response.data.content.length > 0) {
+                        this.transactions = response.data.content;
+                        this.currentPage = response.data.number + 1;
+                        this.totalPages = response.data.totalPages;
+                    } else {
+                        this.transactions = [];
+                        this.currentPage = 1;
+                        this.totalPages = 1;
+                        Swal.close();
+                        await Swal.fire({
+                            icon: 'info',
+                            title: 'No transactions found',
+                        });
+                    }
                 }
+                
             }
             catch (error) {
                 Swal.fire({

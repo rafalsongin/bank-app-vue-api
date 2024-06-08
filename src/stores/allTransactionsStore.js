@@ -22,7 +22,7 @@ export const useTransactionsStore = defineStore("transactionsStore", {
     ) {
       Swal.fire({
         title: "Loading...",
-        text: "Please wait while transactions are being fetched",
+        text: "Please wait while transactions are loading",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -51,7 +51,6 @@ export const useTransactionsStore = defineStore("transactionsStore", {
           role,
         };
 
-        console.log(params);
         const response = await axios.get("api/transactions", { params });
         if (response.data && response.data.content.length > 0) {
           this.transactions = response.data.content;
@@ -61,6 +60,11 @@ export const useTransactionsStore = defineStore("transactionsStore", {
           this.transactions = [];
           this.currentPage = 1;
           this.totalPages = 1;
+          Swal.close();
+          await Swal.fire({
+              icon: 'info',
+              title: 'No transactions found',
+          });
         }
       } catch (error) {
         Swal.fire({
@@ -71,10 +75,6 @@ export const useTransactionsStore = defineStore("transactionsStore", {
       } finally {
         Swal.close();
       }
-    },
-    setPage(page) {
-      this.currentPage = page;
-      this.fetchTransactions(page);
     },
   },
 });

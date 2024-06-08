@@ -123,9 +123,6 @@
             </ul>
           </nav>
         </div>
-        <div v-else class="text-center">
-          <p>No transactions found.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -197,7 +194,6 @@ export default {
 
     const applyFilter = () => {
       const { fromIbanValue, toIbanValue } = getFilteredParams();
-
       transactionsStore.fetchTransactions(
         1,
         startDate.value,
