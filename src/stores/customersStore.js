@@ -47,15 +47,31 @@ export const useCustomersStore = defineStore('customers', {
         setSearchQuery(query) {
             this.searchQuery = query;
         },
-        fetchAccounts(customerId) {
+        async fetchAccounts(customerId) {
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while searching for the IBAN',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
             return axios
                 .get(`api/accounts/customer/${customerId}`)
                 .then((response) => {
                     this.accounts = response.data;
+                    Swal.close();
                 })
                 .catch((error) => {
-                    console.error("Error fetching accounts:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to fetch accounts',
+                        text: error.message,
+                    });
                 });
+
+
         },
         closeCustomerAccount(customerId) {
             axios
@@ -89,7 +105,9 @@ export const useCustomersStore = defineStore('customers', {
             axios
                 .post(`/api/customers/approve/${userId}`)
                 .then((result) => {
-                    this.fetchCustomers();
+                    if (response.status == 200) {
+                        this.fetchCustomers();
+                    }
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -148,19 +166,29 @@ export const useCustomersStore = defineStore('customers', {
                     }
                 });
         },
-        fetchTransactionsByIban(iban) {
-            return axios
-                .get(`/api/transactions/account/${iban}`)
-                .then((response) => {
-                    return response;
-                })
-                .catch((error) => {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Failed to fetch transactions",
-                        text: error.message,
-                    });
+        async fetchTransactionsByIban(iban) {
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while transactions are being fetched',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+            try {
+                const response = await axios.get(`/api/transactions/account/${iban}`);
+                return response;
+            }
+            catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to fetch transactions',
+                    text: error.message,
                 });
+            }
+            finally {
+                Swal.close();
+            }
         },
     },
 });
