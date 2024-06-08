@@ -10,7 +10,16 @@ export const searchCustomerIbanByName = defineStore('customer', {
     }),
     actions: {
         async searchUser() {
+
             try {
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Please wait while searching for the IBAN',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                });
                 if (!this.firstName || !this.lastName) {
                     Swal.fire("First Name and Last Name are required", "", "warning");
                     return;
@@ -42,6 +51,9 @@ export const searchCustomerIbanByName = defineStore('customer', {
                         text: 'An error occurred while searching for the IBAN: ' + error.message,
                     });
                 }
+            }
+            finally {
+                Swal.close();
             }
         },
     },
