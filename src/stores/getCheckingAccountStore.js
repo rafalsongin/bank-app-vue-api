@@ -13,7 +13,7 @@ export const getCheckingAccountStore = defineStore('account', {
     actions: {
         async getCheckingAccountsByIBAN(iban, type) {
             try {
-                const response = await axios.get(`api/accounts/getCheckingAccount/${iban}`);
+                const response = await axios.get(`api/accounts/checking/${iban}`);
                 if (type === 'from') {
                     this.fromAccountDetails = response.data;
                     this.isFromAccountValid = true;

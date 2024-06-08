@@ -12,11 +12,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in filteredCustomers" :key="customer.userId">
+        <tr v-for="customer in paginatedCustomers" :key="customer.userId">
           <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
-          <td>{{ customer.username }}</td>
+          <td>{{ customer.email }}</td>
           <td>{{ customer.accountApprovalStatus }}</td>
           <td>
             <button
@@ -35,12 +35,20 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        Next
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import { useCustomersStore } from "../../../stores/customersStore";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 export default {
   setup() {
@@ -50,6 +58,19 @@ export default {
       () => customersStore.unverifiedCustomers
     );
 
+    const currentPage = ref(1);
+    const itemsPerPage = ref(10);
+
+    const totalPages = computed(() =>
+      Math.ceil(filteredCustomers.value.length / itemsPerPage.value)
+    );
+
+    const paginatedCustomers = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage.value;
+      const end = start + itemsPerPage.value;
+      return filteredCustomers.value.slice(start, end);
+    });
+
     const approveCustomer = (userId) => {
       customersStore.approveCustomer(userId);
     };
@@ -58,10 +79,26 @@ export default {
       customersStore.declineCustomer(userId);
     };
 
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
+    };
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
     return {
-      filteredCustomers,
+      paginatedCustomers,
       approveCustomer,
       declineCustomer,
+      currentPage,
+      totalPages,
+      prevPage,
+      nextPage,
     };
   },
 };
@@ -86,11 +123,33 @@ export default {
 }
 
 tr th {
-  background-color: #343a40;
+  background-color: #30323d;
   color: white;
 }
 
 tbody td:nth-child(odd) {
   background-color: rgb(249, 249, 249);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #5c80bc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin: 0 10px;
+  border-radius: 10px;
+}
+
+.pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 </style>

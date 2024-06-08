@@ -125,7 +125,7 @@ export const useCustomersStore = defineStore('customers', {
         },
         saveAccount(account) {
             axios
-                .put(`api/accounts/changeAccount/${account.iban}`, {
+                .put(`api/accounts/${account.iban}`, {
                     absoluteTransferLimit: account.absoluteTransferLimit,
                     dailyTransferLimit: account.dailyTransferLimit,
                 })

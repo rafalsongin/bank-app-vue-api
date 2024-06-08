@@ -17,7 +17,7 @@ export const searchCustomerIbanByName = defineStore('customer', {
                 }
 
                 const response = await axios.get(
-                    `api/customers/getIbanByCustomerName/${this.firstName}/${this.lastName}`
+                    `api/customers/iban/${this.firstName}/${this.lastName}`
                 );
                 if (response.status === 204) {
                     this.iban = null;
