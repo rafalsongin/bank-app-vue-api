@@ -1,5 +1,5 @@
 <template>
-  <div v-if="customerStatus != 'DECLINED'" class="profile-page">
+  <div v-if="currentCustomer.accountApprovalStatus == 'VERIFIED' || currentCustomer.accountApprovalStatus == 'UNVERIFIED'" class="profile-page">
     <div class="d-flex">
       <div class="nav-panel p-4 rounded-start">
         <CustomerPanelNavigation
@@ -9,33 +9,48 @@
       <div class="content-panel rounded-end flex-grow-1">
         <div v-if="currentPanel === 'Overview'">
           <CustomerPanelOverview
-              :currentUser="currentUser" :customerStatus="customerStatus" />
+              :currentCustomer="currentCustomer" />
         </div>
-        <div v-else-if="currentPanel === 'Details'">
-          <CustomerPanelDetails
-              :currentUser="currentUser" />
+        <div v-else-if="currentPanel === 'Accounts'">
+          <CustomerPanelAccounts
+              :currentCustomer="currentCustomer"/>
         </div>
-        <div v-else-if="currentPanel === 'Transactions'">
-          <CustomerPanelTransactions />
+        <div v-else-if="currentPanel === 'Create Transaction'">
+          <CustomerPanelNewTransaction
+              :currentCustomer="currentCustomer"
+              @updateCustomerAccountData="refreshCustomerAccounts"/>
+        </div>
+        <div v-else-if="currentPanel === 'Search Customer'">
+          <CustomerPanelSearchCustomer
+              :currentCustomer="currentCustomer" />
         </div>
         <div v-else-if="currentPanel === 'Settings'">
-          <CustomerPanelSettings />
+          <CustomerPanelSettings
+              :currentCustomer="currentCustomer"
+              @customerUpdated="updateCustomerDetails" />
         </div>
       </div>
     </div>
   </div>
-  <div v-else>
+  <div v-else-if="currentCustomer.accountApprovalStatus == 'DECLINED'">
     <CustomerPanelSuspended />
+  </div>
+  <div v-else>
+
   </div>
 </template>
 
 <script>
-import CustomerPanelNavigation from "@/components/customer_panel/CustomerPanelNavigation.vue";
-import CustomerPanelOverview from "@/components/customer_panel/CustomerPanelOverview.vue";
-import CustomerPanelDetails from "@/components/customer_panel/CustomerPanelDetails.vue";
-import CustomerPanelTransactions from "@/components/customer_panel/CustomerPanelTransactions.vue";
-import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
 import CustomerPanelSuspended from "@/components/customer_panel/CustomerPanelSuspended.vue";
+import CustomerPanelNavigation from "@/components/customer_panel/CustomerPanelNavigation.vue";
+
+import CustomerPanelOverview from "@/components/customer_panel/CustomerPanelOverview.vue";
+import CustomerPanelAccounts from "@/components/customer_panel/CustomerPanelAccounts.vue";
+import CustomerPanelNewTransaction from "@/components/customer_panel/CustomerPanelNewTransaction.vue";
+
+import CustomerPanelSearchCustomer from "@/components/customer_panel/CustomerPanelSearchCustomer.vue";
+import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
+
 import axios from "@/axios_auth";
 
 export default {
@@ -43,60 +58,97 @@ export default {
     CustomerPanelSuspended,
     CustomerPanelNavigation,
     CustomerPanelOverview,
-    CustomerPanelDetails,
-    CustomerPanelTransactions,
+    CustomerPanelAccounts,
+    CustomerPanelNewTransaction,
+    CustomerPanelSearchCustomer,
     CustomerPanelSettings
   },
   data() {
     return {
       currentPanel: "Overview",
-      currentUser: null,
-      customerStatus: null,
+      currentCustomer:
+          {
+            userId: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            bankId: "",
+            userRole: "",
+            phoneNumber: "",
+            accountApprovalStatus: "",
+            transactionLimit: null,
+            accounts: [],
+            bsn: "",
+            username: "",
+            password: "",
+          },
       isNavigationDisabled: true,
       panelData: {}
     };
   },
   methods: {
-    async fetchCustomerDetails(id) {
+    async fetchCustomerDetails(email) {
       try {
-        const response = await axios.get(`/api/customers/${id}`);
-        if (response.status !== 200 || !response.data) {
+        const response = await axios.get(`https://www.songin.me/bankapp-backend/api/customers/email/${email}`);
+
+        if (response.status !== 200) {
           throw new Error("User was not found!");
         }
-        this.checkAccountStatus(response.data);
-        this.currentUser = response.data;
+
+        console.log("Customer Details:");
+        console.log(response.data);
+
+        this.currentCustomer = response.data;
+        this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
       } catch (error) {
-        console.error('Error fetching customer details:', error);
+        console.error('Error fetching customer details:', error.message);
+        /* this.$router.push("/404"); */
+      }
+    },
+    refreshCustomerAccounts(){
+      this.fetchCustomerAccounts(this.currentCustomer.userId)
+    },
+    async fetchCustomerAccounts(id) {
+      try {
+        console.log("Pushed AccountId to fetch accounts: " + id);
+        const response = await axios.get(`/api/accounts/customer/${id}`);
+
+        console.log(response.data);
+
+        if (response.status !== 200) {
+          throw new Error("Customer accounts were not found!");
+        }
+
+        this.currentCustomer.accounts = response.data;
+      } catch (error) {
+        console.error('Error fetching customer accounts:', error);
         this.$router.push("/404");
       }
     },
-    checkAccountStatus(data) {
-      const accountStatus = data.accountApprovalStatus || "UNKNOWN";
-      switch (accountStatus) {
-        case "APPROVED":
-          this.customerStatus = "APPROVED";
+    isCurrentPanel(panel) {
+      return panel === this.currentPanel ? 'current' : '';
+    },
+    checkAccountStatus(status){
+      switch (status){
+        case "VERIFIED":
           this.isNavigationDisabled = false;
-          break;
-        case "UNVERIFIED":
-          this.customerStatus = "UNVERIFIED";
-          break;
-        case "DECLINED":
-          this.customerStatus = "DECLINED";
+          this.fetchCustomerAccounts(this.currentCustomer.userId);
           break;
         default:
-          throw new Error("Unknown customer status!");
+          this.isNavigationDisabled =true;
+          break;
       }
+    },
+    updateCustomerDetails(updatedCustomer) {
+      this.currentCustomer = updatedCustomer; // Added this method
     },
     selectPanel(panel) {
       this.currentPanel = panel;
-    },
-    isCurrentPanel(panel) {
-      return panel === this.currentPanel ? 'current' : '';
     }
   },
   created() {
-    const customerId = this.$route.params.id;
-    this.fetchCustomerDetails(customerId);
+    const email = this.$route.params.id;
+    this.fetchCustomerDetails(email);
   }
 };
 </script>
@@ -104,7 +156,7 @@ export default {
 <style scoped>
 .profile-page {
   margin: 0 auto;
-  width: 80%;
+  width: 90%;
   border: 3px solid black;
   border-radius: 10px;
 }

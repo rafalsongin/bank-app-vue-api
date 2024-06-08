@@ -7,26 +7,36 @@
           <th scope="col">Full Name</th>
           <th scope="col">Username</th>
           <th scope="col">Email</th>
-          <th scope="col">Approval Status</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="customer in customers" :key="customer.userId">
+        <tr v-for="customer in customers" :key="customer.userId" @click="selectCustomer(customer)">
           <td>{{ customer.userId }}</td>
           <td>{{ customer.firstName }} {{ customer.lastName }}</td>
           <td>{{ customer.username }}</td>
-          <td>{{ customer.username }}</td>
-          <td>{{ customer.accountApprovalStatus }}</td>
+          <td>{{ customer.email }}</td>
         </tr>
       </tbody>
     </table>
+
+    
+
   </div>
 </template>
 
 <script>
 export default {
   props: {
-    customers: Array
+    customers: {
+      type: Array,
+      required: true
+    }
+  },
+  methods: {
+    selectCustomer(customer) {
+      this.$emit('select-customer', customer);
+    }
   }
 }
 </script>
+
