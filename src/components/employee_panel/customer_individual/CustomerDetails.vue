@@ -143,8 +143,8 @@ export default {
       customersStore.saveAccount(account);
     };
 
-    const closeCustomerAccount = async () => {
-      await customersStore.closeCustomerAccount(props.customer.userId);
+    const closeCustomerAccount = () => {
+      customersStore.closeCustomerAccount(props.customer.userId);
     };
 
     const loadAccountTransactions = (account) => {
