@@ -22,8 +22,12 @@ export const useEmployeeStore = defineStore('employee', {
                 const store = useAuthStore();
                 const email = store.username || localStorage.getItem('username') || '';
 
-                if (!email) {
-                    throw new Error('Email is not available');
+                if (!email || email === '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Email not found!`,
+                    });
                 }
 
                 const response = await axios.get(`api/employees/email/${email}`);
