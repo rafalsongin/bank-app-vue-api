@@ -2,7 +2,7 @@
   <header class="mb-4">
     <h2>Customer Settings</h2>
   </header>
-  <div v-if="currentCustomer != null" class="container my-4">
+  <div class="container my-4">
     <div class="form-group">
       <label for="firstName">First Name</label>
       <input
@@ -38,47 +38,31 @@
 </template>
 
 <script>
-import axios from "../../axios_auth";
-import Swal from "sweetalert2";
+import { searchCustomerIbanByName } from "../../stores/searchCustomerIbanByNameStore";
+import { ref, computed } from "vue";
 
 export default {
-  props: {
-    currentCustomer: Object,
-  },
+  props: { currentCustomer: Object },
+  setup() {
+    const store = searchCustomerIbanByName();
 
-  data() {
-    return {
-      firstName: "",
-      lastName: "",
-      iban: null,
+    const firstName = ref(store.firstName);
+    const lastName = ref(store.lastName);
+
+    const iban = computed(() => store.iban);
+
+    const searchUser = () => {
+      store.firstName = firstName.value;
+      store.lastName = lastName.value;
+      store.searchUser();
     };
-  },
 
-  methods: {
-    async searchUser() {
-      try {
-        const response = await axios.get(
-          `/api/customers/getIbanByCustomerName/${this.firstName}/${this.lastName}`
-        );
-        if (response.status === 204) {
-          this.iban = null;
-          Swal.fire("No IBAN found", "", "info");
-        } else {
-          this.iban = response.data;
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          this.iban = null;
-          Swal.fire("No IBAN found", "", "info");
-        } else {
-          Swal.fire(
-            "Error",
-            "An error occurred while searching for the IBAN",
-            "error"
-          );
-        }
-      }
-    },
+    return {
+      firstName,
+      lastName,
+      iban,
+      searchUser,
+    };
   },
 };
 </script>

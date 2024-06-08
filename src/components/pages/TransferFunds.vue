@@ -116,11 +116,11 @@
 </template>
 
 <script>
-import axios from "../../axios_auth";
 import Swal from "sweetalert2";
 import DOMPurify from "dompurify";
 import { useTransactionCreateStore } from "../../stores/transactionCreateStore";
 import { useEmployeeStore } from "../../stores/employeeStore";
+import { getCheckingAccountStore } from "../../stores/getCheckingAccountStore";
 
 export default {
   data() {
@@ -128,28 +128,38 @@ export default {
       fromIban: "",
       toIban: "",
       amount: null,
-      fromAccountDetails: {},
-      toAccountDetails: {},
-      isFromAccountValid: true,
-      isToAccountValid: true,
     };
   },
 
   watch: {
     fromIban(newIban) {
       if (this.isValidIban(newIban)) {
-        this.getCheckingAccountsByIBAN(newIban, "from");
+        this.getCheckingAccount.getCheckingAccountsByIBAN(newIban, "from");
       }
     },
     toIban(newIban) {
       if (this.isValidIban(newIban)) {
-        this.getCheckingAccountsByIBAN(newIban, "to");
+        this.getCheckingAccount.getCheckingAccountsByIBAN(newIban, "to");
       }
     },
   },
   async mounted() {
     const employeeStore = useEmployeeStore();
     await employeeStore.fetchEmployeeDetails();
+  },
+  computed: {
+    fromAccountDetails() {
+      return this.getCheckingAccount.fromAccountDetails;
+    },
+    toAccountDetails() {
+      return this.getCheckingAccount.toAccountDetails;
+    },
+    isFromAccountValid() {
+      return this.getCheckingAccount.isFromAccountValid;
+    },
+    isToAccountValid() {
+      return this.getCheckingAccount.isToAccountValid;
+    },
   },
   methods: {
     isValidIban(iban) {
@@ -159,29 +169,6 @@ export default {
     },
     sanitizeIban(field) {
       this[field] = DOMPurify.sanitize(this[field]);
-    },
-    getCheckingAccountsByIBAN(iban, type) {
-      axios
-        .get(`api/accounts/getCheckingAccount/${iban}`)
-        .then((response) => {
-          if (type === "from") {
-            this.fromAccountDetails = response.data;
-            this.isFromAccountValid = true;
-          } else if (type === "to") {
-            this.toAccountDetails = response.data;
-            this.isToAccountValid = true;
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          if (type === "from") {
-            this.fromAccountDetails = {};
-            this.isFromAccountValid = false;
-          } else if (type === "to") {
-            this.toAccountDetails = {};
-            this.isToAccountValid = false;
-          }
-        });
     },
     validateTransfer() {
       let newBalance = this.fromAccountDetails.balance - this.amount;
@@ -275,8 +262,8 @@ export default {
         this.amount = null;
         this.fromIban = "";
         this.toIban = "";
-        this.fromAccountDetails = {};
-        this.toAccountDetails = {};
+        this.getCheckingAccount.fromAccountDetails = {};
+        this.getCheckingAccount.toAccountDetails = {};
         store.resetTransaction();
       } catch (error) {
         Swal.fire({
@@ -286,6 +273,10 @@ export default {
         });
       }
     },
+  },
+  setup() {
+    const getCheckingAccount = getCheckingAccountStore();
+    return { getCheckingAccount };
   },
 };
 </script>

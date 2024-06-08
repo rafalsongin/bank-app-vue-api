@@ -150,19 +150,14 @@ export default {
 </script>
 
 <style scoped>
-.the-table {
-  background-color: #4d5061;
-  border-radius: 10px;
-}
-
 .btn-toggle-view {
   background-color: #5c80bc;
   border-radius: 10px;
   color: white;
 }
 .btn-toggle-view:focus {
-  outline: none; 
-  box-shadow: none; 
+  outline: none;
+  box-shadow: none;
 }
 .btn-toggle-view:hover {
   background-color: #6190d3;

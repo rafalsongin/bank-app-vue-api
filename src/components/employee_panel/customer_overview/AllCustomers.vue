@@ -1,5 +1,5 @@
 <template>
-  <div class="my-3">
+  <div class="my-3 table-responsive">
     <table class="text-white table align-middle">
       <thead>
         <tr>
@@ -26,7 +26,22 @@
 <script>
 export default {
   props: {
-    customers: Array
-  }
-}
+    customers: Array,
+  },
+};
 </script>
+
+<style scoped>
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+tr th {
+  background-color: #343a40;
+  color: white;
+}
+
+tbody td:nth-child(odd) {
+  background-color: rgb(249, 249, 249);
+}
+</style>
