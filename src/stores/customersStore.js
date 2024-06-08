@@ -28,10 +28,19 @@ export const useCustomersStore = defineStore('customers', {
     },
     actions: {
         fetchCustomers() {
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while searching for the IBAN',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
             axios
                 .get('/api/customers')
                 .then((result) => {
                     this.customers = result.data;
+                    Swal.close();
                 })
                 .catch((error) =>
                     Swal.fire({
@@ -48,22 +57,13 @@ export const useCustomersStore = defineStore('customers', {
             this.searchQuery = query;
         },
         async fetchAccounts(customerId) {
-            Swal.fire({
-                title: 'Loading...',
-                text: 'Please wait while searching for the IBAN',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
+
             return axios
                 .get(`api/accounts/customer/${customerId}`)
                 .then((response) => {
                     this.accounts = response.data;
-                    Swal.close();
                 })
                 .catch((error) => {
-                    Swal.close();
                     Swal.fire({
                         icon: 'error',
                         title: 'Failed to fetch accounts',
