@@ -22,7 +22,6 @@ export const getCheckingAccountStore = defineStore('account', {
                     this.isToAccountValid = true;
                 }
             } catch (error) {
-                console.error(error);
                 if (type === 'from') {
                     this.fromAccountDetails = {};
                     this.isFromAccountValid = false;
@@ -30,11 +29,17 @@ export const getCheckingAccountStore = defineStore('account', {
                     this.toAccountDetails = {};
                     this.isToAccountValid = false;
                 }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: `Failed to fetch ${type} account details: ${error.message}`,
-                });
+                if (error.response && error.response.status === 400) {
+                    Swal.fire("Bad Request", error.response.data, "error");
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Failed to fetch ${type} account details: ${error.message}`,
+                    });
+                }
+
             }
         },
     },

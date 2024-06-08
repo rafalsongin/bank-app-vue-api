@@ -74,7 +74,6 @@ export const useCustomersStore = defineStore('customers', {
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
-                        this.iban = null;
                         Swal.fire("Bad Request", error.response.data, "info");
                     }
                     else {
@@ -93,11 +92,16 @@ export const useCustomersStore = defineStore('customers', {
                     this.fetchCustomers();
                 })
                 .catch((error) => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed to approve customer',
-                        text: error.message,
-                    });
+                    if (error.response && error.response.status === 400) {
+                        Swal.fire("Bad Request", error.response.data, "info");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to approve customer account",
+                            text: error.message,
+                        });
+                    }
                 });
         },
         declineCustomer(userId) {
@@ -107,11 +111,16 @@ export const useCustomersStore = defineStore('customers', {
                     this.fetchCustomers();
                 })
                 .catch((error) => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed to decline customer',
-                        text: error.message,
-                    });
+                    if (error.response && error.response.status === 400) {
+                        Swal.fire("Bad Request", error.response.data, "info");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to decline customer account",
+                            text: error.message,
+                        });
+                    }
                 });
         },
         saveAccount(account) {
@@ -127,11 +136,16 @@ export const useCustomersStore = defineStore('customers', {
                     });
                 })
                 .catch((error) => {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Failed to update account",
-                        text: error.message,
-                    });
+                    if (error.response && error.response.status === 400) {
+                        Swal.fire("Bad Request", error.response.data, "info");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to update account",
+                            text: error.message,
+                        });
+                    }
                 });
         },
         fetchTransactionsByIban(iban) {

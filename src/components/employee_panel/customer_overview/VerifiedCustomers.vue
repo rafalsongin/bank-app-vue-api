@@ -1,5 +1,5 @@
 <template>
-  <div class="my-3">
+  <div class="my-3 table-responsive">
     <div class="informative-text">Click on a user to view their details.</div>
     <table class="table table-hover text-white align-middle">
       <thead>
@@ -44,6 +44,10 @@ export default {
 </script>
 
 <style scoped>
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
 .table-row-hover:hover {
   background-color: rgb(255, 255, 255);
   cursor: pointer;
