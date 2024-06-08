@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import Swal from 'sweetalert2';
+import { useAuthStore } from "./authStore";
 
 export const useCustomersStore = defineStore('customers', {
     state: () => ({
@@ -75,7 +76,7 @@ export const useCustomersStore = defineStore('customers', {
         },
         closeCustomerAccount(customerId) {
             axios
-                .put(`api/customers/closeAccount/${customerId}`)
+                .put(`api/customers/close/${customerId}`)
                 .then((response) => {
                     if (response.status == 200) {
                         this.fetchCustomers();
@@ -125,8 +126,10 @@ export const useCustomersStore = defineStore('customers', {
         declineCustomer(userId) {
             axios
                 .post(`/api/customers/decline/${userId}`)
-                .then((result) => {
-                    this.fetchCustomers();
+                .then((response) => {
+                    if (response.status == 200) {
+                        this.fetchCustomers();
+                    }
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -176,8 +179,18 @@ export const useCustomersStore = defineStore('customers', {
                 },
             });
             try {
-                const response = await axios.get(`/api/transactions/account/${iban}`);
-                return response;
+                const authStore = useAuthStore();
+                const username = authStore.username;
+                const role = authStore.role;
+                if (!username || !role) {
+                    throw new Error("User not found!");        
+                }
+                const params = {username, role,};
+                const response = await axios.get(`/api/transactions/account/${iban}`, { params });
+
+                if (response.status === 200) {
+                    return { success: true, data: response.data };
+                }
             }
             catch (error) {
                 Swal.fire({

@@ -80,8 +80,7 @@
         Account:
         {{ selectedAccount ? selectedAccount.iban : "Select an account" }}
       </p>
-      <div v-if="loadingTransactions">Loading transactions...</div>
-      <div v-else-if="transactions.length" class="table-responsive px-4">
+      <div v-if="transactions.length" class="table-responsive px-4">
         <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
@@ -129,7 +128,6 @@ export default {
   },
   setup(props) {
     const customersStore = useCustomersStore();
-    const loadingTransactions = ref(false);
     const selectedAccount = ref(null);
     const transactions = ref([]);
 
@@ -147,20 +145,13 @@ export default {
       customersStore.closeCustomerAccount(props.customer.userId);
     };
 
-    const loadAccountTransactions = (account) => {
+    const loadAccountTransactions = async (account) => {
       selectedAccount.value = account;
-      loadingTransactions.value = true;
-      customersStore
-        .fetchTransactionsByIban(account.iban)
-        .then((response) => {
-          transactions.value = response.data;
-        })
-        .catch((error) => {
-          console.error("Failed to fetch transactions:", error);
-        })
-        .finally(() => {
-          loadingTransactions.value = false;
-        });
+
+      const result = await customersStore.fetchTransactionsByIban(account.iban);
+      if (result.success) {
+          transactions.value = result.data;
+      };
     };
 
     const formatCurrency = (value) => {
@@ -222,7 +213,6 @@ export default {
       formatDate,
       formatTransactionAmount,
       getTransactionClass,
-      loadingTransactions,
       selectedAccount,
     };
   },

@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
-import axios from '../axios_auth';
-import Swal from 'sweetalert2';
-import { useAuthStore } from './authStore';
+import { defineStore } from "pinia";
+import axios from "../axios_auth";
+import Swal from "sweetalert2";
+import { useAuthStore } from "./authStore";
 
-export const useTransactionsStore = defineStore('transactionsStore', {
+export const useTransactionsStore = defineStore("transactionsStore", {
   state: () => ({
     transactions: [],
     currentPage: 1,
@@ -11,21 +11,33 @@ export const useTransactionsStore = defineStore('transactionsStore', {
     itemsPerPage: 10,
   }),
   actions: {
-    async fetchTransactions(page = 1, startDate = null, endDate = null, amountCondition = null, amountValue = null, fromIban = null, toIban = null) {
+    async fetchTransactions(
+      page = 1,
+      startDate = null,
+      endDate = null,
+      amountCondition = null,
+      amountValue = null,
+      fromIban = null,
+      toIban = null
+    ) {
       Swal.fire({
-        title: 'Loading...',
-        text: 'Please wait while transactions are being fetched',
+        title: "Loading...",
+        text: "Please wait while transactions are being fetched",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
         },
       });
 
-      const authStore = useAuthStore();
-      const username = authStore.username;
-      const role = authStore.role;
-
       try {
+        const authStore = useAuthStore();
+        const username = authStore.username;
+        const role = authStore.role;
+
+        if (!username || !role) {
+            throw new Error("User not found!");        
+        }
+
         const params = {
           page,
           size: this.itemsPerPage,
@@ -35,11 +47,12 @@ export const useTransactionsStore = defineStore('transactionsStore', {
           amountValue,
           fromIban,
           toIban,
-          username, 
+          username,
           role,
         };
 
-        const response = await axios.get('api/transactions', { params });
+        console.log(params);
+        const response = await axios.get("api/transactions", { params });
         if (response.data && response.data.content.length > 0) {
           this.transactions = response.data.content;
           this.currentPage = response.data.number + 1;
@@ -51,9 +64,9 @@ export const useTransactionsStore = defineStore('transactionsStore', {
         }
       } catch (error) {
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch transactions: ' + error.message,
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch transactions: " + error.message,
         });
       } finally {
         Swal.close();
