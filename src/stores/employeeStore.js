@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import { useAuthStore } from "./authStore";
+import Swal from 'sweetalert2';
 
 export const useEmployeeStore = defineStore('employee', {
     state: () => ({
@@ -28,12 +29,20 @@ export const useEmployeeStore = defineStore('employee', {
                 const response = await axios.get(`api/employees/email/${email}`);
 
                 if (response.status !== 200) {
-                    throw new Error('User was not found!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Failed to fetch employee details!`,
+                    });
                 }
 
                 this.employee = response.data;
             } catch (error) {
-                console.error('Error fetching employee details:', error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: `Failed to fetch employee details!`,
+                });
             }
         },
     },
