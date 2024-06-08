@@ -7,29 +7,18 @@
 </template>
 
 <script>
-import axios from 'axios';
+import {ref, onMounted, computed} from 'vue';
+import {useAtmStore} from '@/stores/AtmStore';
 import Swal from 'sweetalert2';
 
 export default {
-  data() {
-    return {
-      balance: 0
-    };
-  },
-  computed: {
-    formattedBalance() {
-      return this.balance.toFixed(2);
-    }
-  },
-  methods: {
-    async fetchBalance() {
+  setup(props, {emit}) {
+    const store = useAtmStore();
+    const balance = ref(0);
+
+    const fetchBalance = async () => {
       try {
-        const response = await axios.get('https://www.songin.me/bankapp-backend/atm/balance', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        this.balance = response.data !== undefined ? response.data : 0;
+        balance.value = await store.getBalance();
       } catch (error) {
         console.error('Error fetching balance:', error);
         Swal.fire({
@@ -38,17 +27,25 @@ export default {
           text: 'Failed to fetch balance',
           showConfirmButton: true
         });
-        this.balance = 0; // Ensure balance is set to a default value if an error occurs
+        balance.value = 0; // Ensure balance is set to a default value if an error occurs
       }
-    },
-    goBack() {
-      this.$emit('go-back');
-    }
-  },
-  mounted() {
-    this.fetchBalance();
+    };
+
+    const goBack = () => {
+      emit('go-back');
+    };
+
+    onMounted(() => {
+      fetchBalance();
+    });
+
+    return {
+      balance,
+      formattedBalance: computed(() => balance.value.toFixed(2)),
+      goBack
+    };
   }
-}
+};
 </script>
 
 <style scoped>

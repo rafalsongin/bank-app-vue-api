@@ -28,7 +28,7 @@ import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
 import DepositView from '../components/DepositView.vue';
 import WithdrawView from '../components/WithdrawView.vue';
-import { useAuthStore } from '@/stores/authStore';
+import { useAtmStore } from '@/stores/AtmStore';
 
 export default {
   name: 'AtmPanel',
@@ -41,7 +41,7 @@ export default {
   },
   setup() {
     const currentView = ref('login');
-    const store = useAuthStore();
+    const store = useAtmStore();
 
     const validateLogin = () => {
       currentView.value = 'menu';
@@ -79,7 +79,7 @@ export default {
       updateBalance
     };
   }
-}
+};
 </script>
 
 <style scoped>
