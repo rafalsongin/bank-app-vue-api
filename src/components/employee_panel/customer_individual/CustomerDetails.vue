@@ -80,8 +80,7 @@
         Account:
         {{ selectedAccount ? selectedAccount.iban : "Select an account" }}
       </p>
-      <div v-if="loadingTransactions">Loading transactions...</div>
-      <div v-else-if="transactions.length" class="table-responsive px-4">
+      <div v-if="transactions.length" class="table-responsive px-4">
         <table class="transaction-table table text-white align-middle">
           <thead>
             <tr>
@@ -110,8 +109,34 @@
             </tr>
           </tbody>
         </table>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === 1 }"
+                @click="setPage(currentPage - 1)"
+              >
+                <a class="page-link" href="#">Previous</a>
+              </li>
+              <li
+                class="page-item"
+                v-for="page in totalPages"
+                :key="page"
+                :class="{ active: currentPage === page }"
+                @click="setPage(page)"
+              >
+                <a class="page-link" href="#">{{ page }}</a>
+              </li>
+              <li
+                class="page-item"
+                :class="{ disabled: currentPage === totalPages }"
+                @click="setPage(currentPage + 1)"
+              >
+                <a class="page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
       </div>
-      <div v-else>No transactions found.</div>
     </div>
   </div>
 </template>
@@ -129,11 +154,12 @@ export default {
   },
   setup(props) {
     const customersStore = useCustomersStore();
-    const loadingTransactions = ref(false);
     const selectedAccount = ref(null);
-    const transactions = ref([]);
-
     const accounts = computed(() => customersStore.accounts);
+
+    const transactions = computed(() => customersStore.transactions);
+    const currentPage = computed(() => customersStore.currentPage);
+    const totalPages = computed(() => customersStore.totalPages);
 
     onMounted(() => {
       customersStore.fetchAccounts(props.customer.userId);
@@ -149,18 +175,16 @@ export default {
 
     const loadAccountTransactions = (account) => {
       selectedAccount.value = account;
-      loadingTransactions.value = true;
-      customersStore
-        .fetchTransactionsByIban(account.iban)
-        .then((response) => {
-          transactions.value = response.data;
-        })
-        .catch((error) => {
-          console.error("Failed to fetch transactions:", error);
-        })
-        .finally(() => {
-          loadingTransactions.value = false;
-        });
+      customersStore.fetchTransactionsByIban(account.iban);
+    };
+
+    const setPage = (page) => {
+      if (page > 0 && page <= totalPages.value) {
+        customersStore.fetchTransactionsByIban(
+        selectedAccount.value.iban,
+        page,
+        );
+      }
     };
 
     const formatCurrency = (value) => {
@@ -215,6 +239,9 @@ export default {
     return {
       accounts,
       transactions,
+      currentPage,
+      totalPages,
+      setPage,
       saveAccount,
       closeCustomerAccount,
       loadAccountTransactions,
@@ -222,7 +249,6 @@ export default {
       formatDate,
       formatTransactionAmount,
       getTransactionClass,
-      loadingTransactions,
       selectedAccount,
     };
   },
