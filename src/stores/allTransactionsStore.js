@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import Swal from 'sweetalert2';
-import { useAuthStore } from './store/authStore';
+import { useAuthStore } from './authStore';
 
 export const useTransactionsStore = defineStore('transactionsStore', {
   state: () => ({
@@ -20,6 +20,11 @@ export const useTransactionsStore = defineStore('transactionsStore', {
           Swal.showLoading();
         },
       });
+
+      const authStore = useAuthStore();
+      const username = authStore.username;
+      const role = authStore.role;
+
       try {
         const params = {
           page,
@@ -30,11 +35,9 @@ export const useTransactionsStore = defineStore('transactionsStore', {
           amountValue,
           fromIban,
           toIban,
+          username, 
+          role,
         };
-
-        const authStore = useAuthStore();
-        const username = authStore.username;
-        const role = authStore.role;
 
         const response = await axios.get('api/transactions', { params });
         if (response.data && response.data.content.length > 0) {
