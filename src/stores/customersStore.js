@@ -78,38 +78,38 @@ export const useCustomersStore = defineStore('customers', {
         async closeCustomerAccount(customerId) {
             try {
                 const result = await Swal.fire({
-                  title: 'Are you sure?',
-                  text: "You won't be able to revert this!",
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: '#3085d6',
-                  cancelButtonColor: '#d33',
-                  confirmButtonText: 'Yes, close it!'
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, close it!'
                 });
                 if (result.isConfirmed) {
                     const response = await axios.put(`/api/customers/close/${customerId}`);
                     if (response.status === 200) {
-                      this.fetchCustomers();
-                      if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
-                        this.selectedCustomer.accountApprovalStatus = 'CLOSED';
-                      }
-                      Swal.fire({
-                        icon: "success",
-                        title: "Customer account closed successfully",
-                      });
+                        this.fetchCustomers();
+                        if (this.selectedCustomer && this.selectedCustomer.userId === customerId) {
+                            this.selectedCustomer.accountApprovalStatus = 'CLOSED';
+                        }
+                        Swal.fire({
+                            icon: "success",
+                            title: "Customer account closed successfully",
+                        });
                     }
-                  }
-                } catch (error) {
-                  if (error.response && error.response.status === 400) {
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 400) {
                     Swal.fire("Bad Request", error.response.data, "info");
-                  } else {
+                } else {
                     Swal.fire({
-                      icon: "error",
-                      title: "Failed to close customer account",
-                      text: error.message,
+                        icon: "error",
+                        title: "Failed to close customer account",
+                        text: error.message,
                     });
                 }
-            }          
+            }
         },
         approveCustomer(userId) {
             axios
@@ -178,13 +178,13 @@ export const useCustomersStore = defineStore('customers', {
                     }
                 });
         },
-        async fetchTransactionsByIban( iban, page = 1) {
+        async fetchTransactionsByIban(iban, page = 1) {
             Swal.fire({
                 title: 'Loading...',
                 text: 'Please wait while transactions are loading',
                 allowOutsideClick: false,
                 didOpen: () => {
-                 Swal.showLoading();
+                    Swal.showLoading();
                 },
             });
 
@@ -193,11 +193,11 @@ export const useCustomersStore = defineStore('customers', {
                 const username = authStore.username;
                 const role = authStore.role;
                 if (!username || !role) {
-                    throw new Error("User not found!");        
+                    throw new Error("User not found!");
                 }
                 const params = {
-                    username, 
-                    role, 
+                    username,
+                    role,
                     page,
                     size: this.itemsPerPage,
                 };
@@ -218,7 +218,7 @@ export const useCustomersStore = defineStore('customers', {
                         });
                     }
                 }
-                
+
             }
             catch (error) {
                 Swal.fire({
