@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import Swal from 'sweetalert2';
 
-export const searchCustomerIbanByName = defineStore('customer', {
+export const useSearchCustomerIbanByNameStore = defineStore('customer', {
     state: () => ({
         firstName: '',
         lastName: '',
@@ -20,7 +20,7 @@ export const searchCustomerIbanByName = defineStore('customer', {
                     },
                 });
                 if (!this.firstName || !this.lastName) {
-                    await Swal.fire("First Name and Last Name are required", "", "warning");
+                    await Swal.fire('First Name and Last Name are required', '', 'warning');
                     return;
                 }
 
@@ -29,29 +29,25 @@ export const searchCustomerIbanByName = defineStore('customer', {
                 );
                 if (response.status === 204) {
                     this.iban = null;
-                    await Swal.fire("No IBAN found", "", "info");
-                }
-                else {
+                    await Swal.fire('No IBAN found', '', 'info');
+                } else {
                     this.iban = response.data;
                 }
             } catch (error) {
                 if (error.response && error.response.status === 400) {
                     this.iban = null;
-                    await Swal.fire("Bad Request", error.response.data, "info");
-                }
-                else if (error.response && error.response.status === 404) {
+                    await Swal.fire('Bad Request', error.response.data, 'info');
+                } else if (error.response && error.response.status === 404) {
                     this.iban = null;
-                    await Swal.fire("No IBAN found", "", "info");
-                }
-                else {
+                    await Swal.fire('No IBAN found', '', 'info');
+                } else {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: 'An error occurred while searching for the IBAN: ' + error.message,
                     });
                 }
-            }
-            finally {
+            } finally {
                 Swal.close();
             }
         },

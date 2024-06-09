@@ -1,43 +1,48 @@
 <template>
   <div v-if="isLoadingPage"></div>
   <div v-else>
-    <div v-if="currentCustomer.accountApprovalStatus == 'VERIFIED' ||
-          currentCustomer.accountApprovalStatus == 'UNVERIFIED'"
-         class="profile-page">
+    <div
+      v-if="
+        currentCustomer.accountApprovalStatus == 'VERIFIED' ||
+        currentCustomer.accountApprovalStatus == 'UNVERIFIED'
+      "
+      class="profile-page"
+    >
       <div class="d-flex">
         <div class="nav-panel p-4 rounded-start">
           <CustomerPanelNavigation
-              :currentPanel="currentPanel"
-              :isNavigationDisabled="isNavigationDisabled"
-              @selectPanel="selectPanel"/>
+            :currentPanel="currentPanel"
+            :isNavigationDisabled="isNavigationDisabled"
+            @selectPanel="selectPanel"
+          />
         </div>
         <div class="content-panel rounded-end flex-grow-1">
           <div v-if="currentPanel === 'Overview'">
-            <CustomerPanelOverview :currentCustomer="currentCustomer"/>
+            <CustomerPanelOverview :currentCustomer="currentCustomer" />
           </div>
           <div v-else-if="currentPanel === 'Accounts'">
-            <CustomerPanelAccounts :currentCustomer="currentCustomer"/>
+            <CustomerPanelAccounts :currentCustomer="currentCustomer" />
           </div>
           <div v-else-if="currentPanel === 'Create Transaction'">
             <CustomerPanelNewTransaction
-                :currentCustomer="currentCustomer"
-                @updateCustomerAccountData="refreshCustomerAccounts"
+              :currentCustomer="currentCustomer"
+              @updateCustomerAccountData="refreshCustomerAccounts"
             />
           </div>
           <div v-else-if="currentPanel === 'Search Customer'">
-            <CustomerPanelSearchCustomer :currentCustomer="currentCustomer"/>
+            <CustomerPanelSearchCustomer :currentCustomer="currentCustomer" />
           </div>
           <div v-else-if="currentPanel === 'Settings'">
             <CustomerPanelSettings
-                :currentCustomer="currentCustomer"
-                @customerUpdated="updateCustomerDetails"
+              :currentCustomer="currentCustomer"
+              @customerUpdated="updateCustomerDetails"
             />
           </div>
         </div>
       </div>
     </div>
     <div v-else>
-      <CustomerPanelSuspended/>
+      <CustomerPanelSuspended />
     </div>
   </div>
 </template>
@@ -53,7 +58,7 @@ import CustomerPanelNewTransaction from "@/components/customer_panel/CustomerPan
 import CustomerPanelSearchCustomer from "@/components/customer_panel/CustomerPanelSearchCustomer.vue";
 import CustomerPanelSettings from "@/components/customer_panel/CustomerPanelSettings.vue";
 
-import {useCustomerProfileStore} from "@/stores/customerProfileStore";
+import { useCustomerProfileStore } from "@/stores/customerProfileStore";
 
 export default {
   components: {
@@ -78,7 +83,7 @@ export default {
     async fetchCustomerDetails(email) {
       try {
         await useCustomerProfileStore().fetchCustomerDetails(email);
-        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer)
+        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer);
 
         this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
         this.isLoadingPage = false;
@@ -89,9 +94,10 @@ export default {
     },
     async fetchCustomerAccounts() {
       try {
-        await useCustomerProfileStore().fetchCustomerAccounts(this.currentCustomer.userId);
-        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer)
-
+        await useCustomerProfileStore().fetchCustomerAccounts(
+          this.currentCustomer.userId
+        );
+        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer);
       } catch (error) {
         console.error("Error fetching customer accounts:", error);
         this.$router.push("/404");

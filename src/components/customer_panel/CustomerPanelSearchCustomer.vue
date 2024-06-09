@@ -7,21 +7,21 @@
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input
-            id="firstName"
-            v-model="firstName"
-            class="form-control"
-            placeholder="Enter First Name"
-            type="text"
+          id="firstName"
+          v-model="firstName"
+          class="form-control"
+          placeholder="Enter First Name"
+          type="text"
         />
       </div>
       <div class="form-group mt-3">
         <label for="lastName">Last Name</label>
         <input
-            id="lastName"
-            v-model="lastName"
-            class="form-control"
-            placeholder="Enter Last Name"
-            type="text"
+          id="lastName"
+          v-model="lastName"
+          class="form-control"
+          placeholder="Enter Last Name"
+          type="text"
         />
       </div>
       <button class="btn btn-success mt-3" type="submit" @click="searchUser">
@@ -40,17 +40,18 @@
 </template>
 
 <script>
-import {searchCustomerIbanByName} from "../../stores/searchCustomerIbanByNameStore";
-import {computed, ref} from "vue";
+import { ref, computed } from "vue";
+import { useSearchCustomerIbanByNameStore } from "../../stores/searchCustomerIbanByNameStore";
 
 export default {
-  props: {currentCustomer: Object},
+  props: {
+    currentCustomer: Object,
+  },
   setup() {
-    const store = searchCustomerIbanByName();
+    const store = useSearchCustomerIbanByNameStore();
 
     const firstName = ref(store.firstName);
     const lastName = ref(store.lastName);
-
     const iban = computed(() => store.iban);
 
     const searchUser = () => {
