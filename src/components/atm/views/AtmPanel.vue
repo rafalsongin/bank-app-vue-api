@@ -28,7 +28,8 @@ import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
 import DepositView from '../components/DepositView.vue';
 import WithdrawView from '../components/WithdrawView.vue';
-import { useAtmStore } from '@/stores/AtmStore';
+import { useAtmStore } from '@/stores/atmStore.js';
+
 import Swal from 'sweetalert2';
 
 export default {
