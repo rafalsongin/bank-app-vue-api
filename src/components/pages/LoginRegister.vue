@@ -82,11 +82,13 @@ export default {
           });
         }
       } catch (error) {
-        if (error.response && error.response.status === 401) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        if (error.response.status === 401) {
           Swal.fire({
             icon: 'error',
             title: 'Login failed',
-            text: 'Login credentials are incorrect.'
+            text: error.response.data
           });
         } else {
           Swal.fire({
