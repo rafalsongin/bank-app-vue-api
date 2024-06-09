@@ -1,20 +1,15 @@
 <template>
   <div v-if="isLoadingPage"></div>
   <div v-else>
-    <div
-      v-if="
-        currentCustomer.accountApprovalStatus == 'VERIFIED' ||
-        currentCustomer.accountApprovalStatus == 'UNVERIFIED'
-      "
-      class="profile-page"
-    >
+    <div v-if="currentCustomer.accountApprovalStatus == 'VERIFIED' ||
+        currentCustomer.accountApprovalStatus == 'UNVERIFIED'"
+      class="profile-page">
       <div class="d-flex">
         <div class="nav-panel p-4 rounded-start">
           <CustomerPanelNavigation
             :currentPanel="currentPanel"
             :isNavigationDisabled="isNavigationDisabled"
-            @selectPanel="selectPanel"
-          />
+            @selectPanel="selectPanel" />
         </div>
         <div class="content-panel rounded-end flex-grow-1">
           <div v-if="currentPanel === 'Overview'">
@@ -26,17 +21,15 @@
           <div v-else-if="currentPanel === 'Create Transaction'">
             <CustomerPanelNewTransaction
               :currentCustomer="currentCustomer"
-              @updateCustomerAccountData="refreshCustomerAccounts"
-            />
+              @updateCustomerAccountData="refreshCustomerAccounts" />
           </div>
           <div v-else-if="currentPanel === 'Search Customer'">
-            <CustomerPanelSearchCustomer :currentCustomer="currentCustomer" />
+            <CustomerPanelSearchCustomer />
           </div>
           <div v-else-if="currentPanel === 'Settings'">
             <CustomerPanelSettings
               :currentCustomer="currentCustomer"
-              @customerUpdated="updateCustomerDetails"
-            />
+              @customerUpdated="updateCustomerDetails" />
           </div>
         </div>
       </div>
