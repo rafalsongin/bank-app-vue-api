@@ -21,7 +21,7 @@ export const searchCustomerIbanByName = defineStore('customer', {
                     },
                 });
                 if (!this.firstName || !this.lastName) {
-                    Swal.fire("First Name and Last Name are required", "", "warning");
+                    await Swal.fire("First Name and Last Name are required", "", "warning");
                     return;
                 }
 
@@ -30,7 +30,7 @@ export const searchCustomerIbanByName = defineStore('customer', {
                 );
                 if (response.status === 204) {
                     this.iban = null;
-                    Swal.fire("No IBAN found", "", "info");
+                    await Swal.fire("No IBAN found", "", "info");
                 }
                 else {
                     this.iban = response.data;
@@ -38,14 +38,14 @@ export const searchCustomerIbanByName = defineStore('customer', {
             } catch (error) {
                 if (error.response && error.response.status === 400) {
                     this.iban = null;
-                    Swal.fire("Bad Request", error.response.data, "info");
+                    await Swal.fire("Bad Request", error.response.data, "info");
                 }
                 else if (error.response && error.response.status === 404) {
                     this.iban = null;
-                    Swal.fire("No IBAN found", "", "info");
+                    await Swal.fire("No IBAN found", "", "info");
                 }
                 else {
-                    Swal.fire({
+                    await Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: 'An error occurred while searching for the IBAN: ' + error.message,
