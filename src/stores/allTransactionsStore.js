@@ -72,7 +72,6 @@ export const useTransactionsStore = defineStore("transactionsStore", {
               title: "Failed to fetch transactions",
               text: error.response.data,
           });
-          console.error(error.response.data);
         } else {
             await Swal.fire({
                 icon: "error",

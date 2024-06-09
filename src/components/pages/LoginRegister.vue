@@ -143,6 +143,12 @@ export default {
             title: 'Registration failed',
             text: error.response.data
           });
+        } else if(error.response && error.response.data && error.response.status === 400) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Registration failed',
+            text: error.response.data
+          });
         } else {
           Swal.fire({
             icon: 'error',

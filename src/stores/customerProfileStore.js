@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from '../axios_auth';
 import Swal from 'sweetalert2';
 
-export const useCustomerProfileStore = defineStore('customer', {
+export const useCustomerProfileStore = defineStore('customerprofile', {
     state: () => ({
         currentCustomer: {},
     }),

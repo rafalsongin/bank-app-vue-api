@@ -59,12 +59,9 @@
                 </div>
               </div>
               <!-- Transaction Display -->
-              <ul class="list-group">
+              <ul v-if="transactions.length" class="list-group mb-4">
                 <li v-for="transaction in transactions" :key="transaction.id" class="list-group-item">
                   <TransactionCard :selectedAccount="selectedAccount" :transaction="transaction"/>
-                </li>
-                <li v-if="!transactions.length" class="list-group-item">
-                  No transactions found.
                 </li>
               </ul>
               <!-- Pagination -->
