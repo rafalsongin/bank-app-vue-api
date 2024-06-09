@@ -110,32 +110,32 @@
           </tbody>
         </table>
         <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <li
-                class="page-item"
-                :class="{ disabled: currentPage === 1 }"
-                @click="setPage(currentPage - 1)"
-              >
-                <a class="page-link" href="#">Previous</a>
-              </li>
-              <li
-                class="page-item"
-                v-for="page in totalPages"
-                :key="page"
-                :class="{ active: currentPage === page }"
-                @click="setPage(page)"
-              >
-                <a class="page-link" href="#">{{ page }}</a>
-              </li>
-              <li
-                class="page-item"
-                :class="{ disabled: currentPage === totalPages }"
-                @click="setPage(currentPage + 1)"
-              >
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
+          <ul class="pagination justify-content-center">
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === 1 }"
+              @click="setPage(currentPage - 1)"
+            >
+              <a class="page-link" href="#">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+              @click="setPage(page)"
+            >
+              <a class="page-link" href="#">{{ page }}</a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === totalPages }"
+              @click="setPage(currentPage + 1)"
+            >
+              <a class="page-link" href="#">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -181,8 +181,8 @@ export default {
     const setPage = (page) => {
       if (page > 0 && page <= totalPages.value) {
         customersStore.fetchTransactionsByIban(
-        selectedAccount.value.iban,
-        page,
+          selectedAccount.value.iban,
+          page
         );
       }
     };
