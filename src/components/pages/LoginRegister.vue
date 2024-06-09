@@ -21,27 +21,27 @@
             <div class="h2">
               <h2>Apply the form to become a customer!</h2>
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'Email in the format: example@domain.com'">
               <label for="inputEmail" class="form-label">Email</label>
               <input v-model="email" id="inputEmail" type="email" class="form-control" required />
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'Password must be between 8 and 40 characters'">
               <label for="inputPassword" class="form-label">Password</label>
               <input v-model="regPassword" type="password" class="form-control" id="inputPassword" minlength="8" maxlength="40" required />
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'First name is required'">
               <label for="inputFirstName" class="form-label">First Name</label>
               <input v-model="firstName" id="inputFirstName" type="text" class="form-control" required />
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'Last name is required'">
               <label for="inputLastName" class="form-label">Last Name</label>
               <input v-model="lastName" id="inputLastName" type="text" class="form-control" required />
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'BSN must be 9 digits'">
               <label for="inputBsn" class="form-label">BSN</label>
               <input v-model="bsn" id="inputBsn" type="text" class="form-control" required />
             </div>
-            <div class="mb-3">
+            <div class="mb-3" v-tooltip="'Phone number format: 06XXXXXXXX'">
               <label for="inputPhoneNumber" class="form-label">Phone Number</label>
               <input v-model="phoneNumber" id="inputPhoneNumber" type="text" class="form-control" required />
             </div>
@@ -52,6 +52,7 @@
     </div>
   </section>
 </template>
+
 
 
 <script>
@@ -77,15 +78,17 @@ export default {
             showConfirmButton: false,
             timer: 1500
           }).then(() => {
-            router.push('/');
+            router.push("/");
           });
         }
       } catch (error) {
-        if (error.response && error.response.status === 401) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        if (error.response.status === 401) {
           Swal.fire({
             icon: 'error',
             title: 'Login failed',
-            text: 'Login credentials are incorrect.'
+            text: error.response.data
           });
         } else {
           Swal.fire({
@@ -97,7 +100,6 @@ export default {
       }
     };
 
-    // Register form refs and methods
     const email = ref("");
     const regPassword = ref("");
     const firstName = ref("");
@@ -125,7 +127,7 @@ export default {
             showConfirmButton: false,
             timer: 1500
           }).then(() => {
-            router.push("/login");
+            router.push("/");
           });
         } else {
           Swal.fire({
@@ -136,6 +138,12 @@ export default {
         }
       } catch (error) {
         if (error.response && error.response.status === 409) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Registration failed',
+            text: error.response.data
+          });
+        } else if(error.response && error.response.data && error.response.status === 400) {
           Swal.fire({
             icon: 'error',
             title: 'Registration failed',
@@ -152,11 +160,9 @@ export default {
     };
 
     return {
-      // Login
       username,
       password,
       login,
-      // Register
       email,
       regPassword,
       firstName,
@@ -165,20 +171,29 @@ export default {
       phoneNumber,
       register
     };
+  },
+  directives: {
+    tooltip: {
+      beforeMount(el, binding) {
+        el.setAttribute('title', binding.value);
+        el.classList.add('has-tooltip');
+      }
+    }
   }
 };
+
 </script>
 
 
 <style scoped>
 .container {
-  max-width: 1200px; /* Increased max-width */
+  max-width: 1200px;
   margin: 0 auto;
   padding-top: 50px;
 }
 
 .form-container {
-  margin: 0 20px; /* Added margin between the forms */
+  margin: 0 20px;
 }
 
 form {
@@ -212,4 +227,23 @@ button:hover {
   border-color: #30323d;
   color: #FFF;
 }
+
+/* Tooltip styles */
+.has-tooltip {
+  position: relative;
+}
+
+.has-tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
 </style>

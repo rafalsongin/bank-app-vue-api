@@ -7,10 +7,20 @@
       <div class="col-12">
         <div class="mb-3 row">
           <div class="col-md-3">
-            <input type="date" v-model="startDate" class="form-control" placeholder="Start Date">
+            <input
+              type="date"
+              v-model="startDate"
+              class="form-control"
+              placeholder="Start Date"
+            />
           </div>
           <div class="col-md-3">
-            <input type="date" v-model="endDate" class="form-control" placeholder="End Date">
+            <input
+              type="date"
+              v-model="endDate"
+              class="form-control"
+              placeholder="End Date"
+            />
           </div>
           <div class="col-md-3">
             <select v-model="amountCondition" class="form-control">
@@ -20,23 +30,42 @@
             </select>
           </div>
           <div class="col-md-3">
-            <input type="number" v-model="amountValue" class="form-control" placeholder="Amount">
+            <input
+              type="number"
+              v-model="amountValue"
+              class="form-control"
+              placeholder="Amount"
+            />
           </div>
         </div>
         <div class="mb-3 row">
           <div class="col-md-6">
-            <input type="text" v-model="fromIban" class="form-control" placeholder="From IBAN">
+            <input
+              type="text"
+              v-model="fromIban"
+              class="form-control"
+              placeholder="From IBAN"
+            />
           </div>
           <div class="col-md-6">
-            <input type="text" v-model="toIban" class="form-control" placeholder="To IBAN">
+            <input
+              type="text"
+              v-model="toIban"
+              class="form-control"
+              placeholder="To IBAN"
+            />
           </div>
         </div>
         <div class="mb-3 row justify-content-center">
-            <div class="col-md-2">
-              <button class="btn btn-primary" @click="applyFilter">Apply Filter</button>
+          <div class="col-md-2">
+            <button class="btn btn-primary" @click="applyFilter">
+              Apply Filter
+            </button>
           </div>
           <div class="col-md-2">
-            <button class="btn btn-secondary" @click="clearFilters">Clear Filters</button>
+            <button class="btn btn-secondary" @click="clearFilters">
+              Clear Filters
+            </button>
           </div>
         </div>
         <div v-if="transactions.length" class="table-responsive">
@@ -58,7 +87,11 @@
                 <td>{{ formatCurrency(transaction.amount) }}</td>
                 <td>{{ transaction.fromAccount }}</td>
                 <td>{{ transaction.toAccount }}</td>
-                <td>{{ transaction.initiatorName }} ({{ transaction.initiatorRole }})</td>
+                <td>
+                  {{ transaction.initiatorName }} ({{
+                    transaction.initiatorRole
+                  }})
+                </td>
               </tr>
             </tbody>
           </table>
@@ -90,9 +123,6 @@
             </ul>
           </nav>
         </div>
-        <div v-else class="text-center">
-          <p>No transactions found.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -100,7 +130,7 @@
 
 <script>
 import { useTransactionsStore } from "../../stores/allTransactionsStore";
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 export default {
   setup() {
@@ -113,7 +143,7 @@ export default {
 
     const startDate = ref(null);
     const endDate = ref(null);
-    const amountCondition = ref('equal');
+    const amountCondition = ref("equal");
     const amountValue = ref(null);
     const fromIban = ref(null);
     const toIban = ref(null);
@@ -138,32 +168,51 @@ export default {
 
     const getFilteredParams = () => {
       return {
-        fromIbanValue: fromIban.value && fromIban.value.trim() !== '' ? fromIban.value : null,
-        toIbanValue: toIban.value && toIban.value.trim() !== '' ? toIban.value : null,
+        fromIbanValue:
+          fromIban.value && fromIban.value.trim() !== ""
+            ? fromIban.value
+            : null,
+        toIbanValue:
+          toIban.value && toIban.value.trim() !== "" ? toIban.value : null,
       };
     };
 
     const setPage = (page) => {
       if (page > 0 && page <= totalPages.value) {
         const { fromIbanValue, toIbanValue } = getFilteredParams();
-        transactionsStore.fetchTransactions(page, startDate.value, endDate.value, amountCondition.value, amountValue.value, fromIbanValue, toIbanValue);
+        transactionsStore.fetchTransactions(
+          page,
+          startDate.value,
+          endDate.value,
+          amountCondition.value,
+          amountValue.value,
+          fromIbanValue,
+          toIbanValue
+        );
       }
     };
 
     const applyFilter = () => {
       const { fromIbanValue, toIbanValue } = getFilteredParams();
-
-      transactionsStore.fetchTransactions(1, startDate.value, endDate.value, amountCondition.value, amountValue.value, fromIbanValue, toIbanValue);
+      transactionsStore.fetchTransactions(
+        1,
+        startDate.value,
+        endDate.value,
+        amountCondition.value,
+        amountValue.value,
+        fromIbanValue,
+        toIbanValue
+      );
     };
 
     const clearFilters = () => {
       startDate.value = null;
       endDate.value = null;
-      amountCondition.value = 'equal';
+      amountCondition.value = "equal";
       amountValue.value = null;
       fromIban.value = null;
       toIban.value = null;
-      applyFilter(); 
+      applyFilter();
     };
 
     return {
@@ -173,7 +222,6 @@ export default {
       formatCurrency,
       formatDate,
       setPage,
-
       startDate,
       endDate,
       amountCondition,
@@ -188,8 +236,16 @@ export default {
 </script>
 
 <style scoped>
-  .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-  }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+tr th {
+  background-color: #30323d;
+  color: white;
+}
+
+tbody td:nth-child(odd) {
+  background-color: rgb(249, 249, 249);
+}
 </style>

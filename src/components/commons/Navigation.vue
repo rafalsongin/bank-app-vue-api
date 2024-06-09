@@ -73,6 +73,14 @@
               >Profile</router-link
             >
           </li>
+          <li class="nav-item" v-if="isLoggedIn && userRole === 'CUSTOMER'">
+            <router-link
+              to="/search-customer-iban"
+              class="nav-link"
+              active-class="active"
+              >Search Customer's IBAN</router-link
+            >
+          </li>
           <li class="nav-item" v-if="isLoggedIn">
             <button @click="logout" class="btn btn-link nav-link">
               Logout

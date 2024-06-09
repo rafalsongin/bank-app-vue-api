@@ -1,9 +1,9 @@
 <template>
   <div v-if="currentCustomer != null" class="container my-4">
-    <div class="mb-4">
+    <header class="mb-4">
       <h5>Hello, welcome back</h5>
       <h2>{{ currentCustomer.firstName + " " + currentCustomer.lastName }}</h2>
-    </div>
+    </header>
 
     <div v-if="currentCustomer.accountApprovalStatus == 'UNVERIFIED'" class="alert alert-warning text-center">
       <h4>Account Verification Pending</h4>

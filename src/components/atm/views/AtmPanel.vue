@@ -9,7 +9,7 @@
         <TransactionMenu @select-transaction="selectTransaction" />
       </div>
       <div v-if="currentView === 'balance'">
-        <BalanceView @go-back="goBack" />
+        <BalanceView :balance="balance" @go-back="goBack" />
       </div>
       <div v-if="currentView === 'deposit'">
         <DepositView @go-back="goBack" @update-balance="updateBalance" />
@@ -22,13 +22,15 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import AtmLogin from '../components/AtmLogin.vue';
 import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
 import DepositView from '../components/DepositView.vue';
 import WithdrawView from '../components/WithdrawView.vue';
-import { useAuthStore } from '@/stores/authStore';
+import {useAtmStore} from '@/stores/AtmStore.js';
+
+import Swal from 'sweetalert2';
 
 export default {
   name: 'AtmPanel',
@@ -41,21 +43,42 @@ export default {
   },
   setup() {
     const currentView = ref('login');
-    const store = useAuthStore();
+    const store = useAtmStore();
+    const balance = ref(0);
 
     const validateLogin = () => {
       currentView.value = 'menu';
     };
 
-    const selectTransaction = (transaction) => {
-      currentView.value = transaction;
+    const selectTransaction = async (transaction) => {
+      if (transaction === 'balance') {
+        try {
+          balance.value = await store.getBalance();
+          currentView.value = 'balance';
+        } catch (error) {
+          console.error('Error fetching balance:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch balance',
+            showConfirmButton: true
+          });
+        }
+      } else {
+        currentView.value = transaction;
+      }
     };
 
     const goBack = () => {
       currentView.value = 'menu';
     };
 
-    const updateBalance = () => {
+    const updateBalance = async () => {
+      try {
+        balance.value = await store.getBalance();
+      } catch (error) {
+        console.error('Error updating balance:', error);
+      }
       if (currentView.value === 'balance') {
         currentView.value = 'menu';
         setTimeout(() => {
@@ -73,13 +96,14 @@ export default {
 
     return {
       currentView,
+      balance,
       validateLogin,
       selectTransaction,
       goBack,
       updateBalance
     };
   }
-}
+};
 </script>
 
 <style scoped>
