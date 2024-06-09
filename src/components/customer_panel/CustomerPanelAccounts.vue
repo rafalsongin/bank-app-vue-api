@@ -9,31 +9,23 @@
           <div class="card mb-4">
             <div class="card-body">
               <h5 class="card-title">Account Details</h5>
-              <div
-                v-for="account in currentCustomer.accounts"
-                :key="account.iban"
-                class="mb-3"
-              >
-                <AccountCard
-                  :account="account"
-                  @click="selectAccount(account)"
-                ></AccountCard>
+              <div v-for="account in currentCustomer.accounts" :key="account.iban" class="mb-3">
+                <AccountCard :account="account" @click="selectAccount(account)"></AccountCard>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-6" v-if="selectedAccount">
+        <div v-if="selectedAccount" class="col-md-6">
           <div class="card mb-4">
             <div class="card-body">
-              <h5 class="card-title">
-                Transactions for {{ selectedAccount.iban }}
-              </h5>
+              <h5 class="card-title">Transactions for {{ selectedAccount.iban }}</h5>
+              <!-- Transaction filters -->
               <div class="mb-3 row">
                 <div class="col-md-6">
-                  <input type="date" v-model="startDate" class="form-control" placeholder="Start Date">
+                  <input v-model="startDate" class="form-control" placeholder="Start Date" type="date">
                 </div>
                 <div class="col-md-6">
-                  <input type="date" v-model="endDate" class="form-control" placeholder="End Date">
+                  <input v-model="endDate" class="form-control" placeholder="End Date" type="date">
                 </div>
               </div>
               <div class="mb-3 row">
@@ -45,17 +37,17 @@
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <input type="number" v-model="amountValue" class="form-control" placeholder="Amount">
+                  <input v-model="amountValue" class="form-control" placeholder="Amount" type="number">
                 </div>
               </div>
               <div class="mb-3 row">
                 <div class="col-md-12">
-                  <input type="text" v-model="fromIban" class="form-control" placeholder="From IBAN">
+                  <input v-model="fromIban" class="form-control" placeholder="From IBAN" type="text">
                 </div>
               </div>
               <div class="mb-3 row">
                 <div class="col-md-12">
-                  <input type="text" v-model="toIban" class="form-control" placeholder="To IBAN">
+                  <input v-model="toIban" class="form-control" placeholder="To IBAN" type="text">
                 </div>
               </div>
               <div class="mb-3 row justify-content-center">
@@ -66,29 +58,26 @@
                   <button class="btn btn-secondary w-100" @click="clearFilters">Clear Filters</button>
                 </div>
               </div>
+              <!-- Transaction Display -->
               <ul class="list-group">
-                <li
-                  v-for="transaction in transactions"
-                  :key="transaction.id"
-                  class="list-group-item"
-                >
-                  <strong>Type:</strong> {{ transaction.transactionType }}<br />
-                  <strong>Amount:</strong>
-                  <span :class="amountClass(transaction)">{{
-                    formatAmount(transaction)
-                  }}</span
-                  ><br />
-                  <strong>Date:</strong>
-                  {{ formatTimestamp(transaction.timestamp) }}<br />
-                  <strong>From:</strong> {{ transaction.fromAccount }}<br />
-                  <strong>To:</strong> {{ transaction.toAccount }}<br />
-                  <strong>Initialized by:</strong>
-                  {{ transaction.initiatedByUser }}
+                <li v-for="transaction in transactions" :key="transaction.id" class="list-group-item">
+                  <TransactionCard :selectedAccount="selectedAccount" :transaction="transaction"/>
                 </li>
                 <li v-if="!transactions.length" class="list-group-item">
                   No transactions found.
                 </li>
               </ul>
+              <!-- Pagination -->
+              <div class="mb-3 row justify-content-between">
+                <div class="col-md-4">
+                  <button :disabled="currentPage === 1" class="btn btn-primary w-100" @click="previousPage">Previous
+                  </button>
+                </div>
+                <div class="col-md-4">
+                  <button :disabled="currentPage === totalPages" class="btn btn-primary w-100" @click="nextPage">Next
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -99,68 +88,57 @@
 
 <script>
 import AccountCard from "@/components/customer_panel/PanelComponents/AccountCard.vue";
-import { useTransactionFetchStore } from "@/stores/transactionFetchStore.js";
-import { ref } from 'vue';
+import TransactionCard from "@/components/customer_panel/PanelComponents/TransactionCard.vue";
+import {useTransactionFetchStore} from "@/stores/transactionFetchStore.js";
+import {ref} from 'vue';
+import Swal from "sweetalert2";
 
 export default {
   components: {
     AccountCard,
+    TransactionCard,
   },
   props: {
     currentCustomer: Object,
   },
   data() {
     return {
-    selectedAccount: null,
-    startDate: ref(null),
-    endDate: ref(null),
-    amountCondition: ref('equal'),
-    amountValue: ref(null),
-    fromIban: ref(null),
-    toIban: ref(null),
+      transactions: [],
+      selectedAccount: null,
+      startDate: ref(null),
+      endDate: ref(null),
+      amountCondition: ref('equal'),
+      amountValue: ref(null),
+      fromIban: ref(null),
+      toIban: ref(null),
     };
   },
   computed: {
-    transactions() {
-      return useTransactionFetchStore().transactions;
+    currentPage() {
+      return useTransactionFetchStore().currentPage;
+    },
+    totalPages() {
+      return useTransactionFetchStore().totalPages;
     },
   },
   methods: {
-    async fetchTransactions(account, filteredParams = null) {
-      console.log(account);
-      try {
-        await useTransactionFetchStore().fetchTransactionsByAccountIban(account.accountId, filteredParams); // to fix issues id pushed
-      } catch (error) {
-        console.error(
-          "Error when fetching transactions of selected account:",
-          error.message
-        );
-      }
-    },
     selectAccount(account) {
       this.selectedAccount = account;
-      this.fetchTransactions(account);
+      this.clearFilters();
     },
-    formatTimestamp(timestamp) {
-      const date = new Date(timestamp);
-      return (
-        date.toLocaleDateString() +
-        " " +
-        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      );
+    async fetchTransactions(account, filteredParams) {
+      try {
+        await useTransactionFetchStore().fetchTransactionsByAccountIban(account.iban, filteredParams);
+        this.updateTransactions();
+      } catch (error) {
+        console.error(error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Failed to fetch transactions!`,
+        });
+      }
     },
-    formatAmount(transaction) {
-      const sign =
-        transaction.fromAccount === this.selectedAccount.iban ? "-" : "+";
-      const amount = Math.abs(transaction.amount).toFixed(2);
-      return `${sign}${amount}`;
-    },
-    amountClass(transaction) {
-      return transaction.fromAccount === this.selectedAccount.iban
-        ? "text-danger font-weight-bold"
-        : "text-success font-weight-bold";
-    },
-
     getFilteredParams() {
       return {
         startDate: this.startDate,
@@ -171,12 +149,13 @@ export default {
         toIban: this.toIban && this.toIban.trim() !== '' ? this.toIban : null,
       };
     },
-
+    updateTransactions() {
+      this.transactions = useTransactionFetchStore().transactions;
+    },
     applyFilter() {
       const filteredParams = this.getFilteredParams();
       this.fetchTransactions(this.selectedAccount, filteredParams);
     },
-
     clearFilters() {
       this.startDate = null;
       this.endDate = null;
@@ -184,20 +163,27 @@ export default {
       this.amountValue = null;
       this.fromIban = null;
       this.toIban = null;
-      this.applyFilter(); 
+      this.applyFilter();
+    },
+    async nextPage() {
+      if (this.currentPage < this.totalPages) {
+        await this.fetchTransactions(this.selectedAccount, {
+          page: this.currentPage + 1,
+          ...this.getFilteredParams(),
+        });
+      }
+    },
+    async previousPage() {
+      if (this.currentPage > 1) {
+        await this.fetchTransactions(this.selectedAccount, {
+          page: this.currentPage - 1,
+          ...this.getFilteredParams(),
+        });
+      }
     },
   },
 };
 </script>
 
 <style scoped>
-.text-danger {
-  color: red;
-}
-.text-success {
-  color: green;
-}
-.font-weight-bold {
-  font-weight: bold;
-}
 </style>
