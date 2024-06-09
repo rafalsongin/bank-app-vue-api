@@ -29,7 +29,6 @@
         <div
           v-for="account in accounts"
           :key="account.iban"
-          @click="loadAccountTransactions(account)"
           class="account-details text-white rounded-lg shadow-md"
         >
           <p class="text-lg mb-2">
@@ -64,12 +63,14 @@
               />
             </label>
           </div>
-          <button
-            @click="saveAccount(account)"
-            class="fw-bold py-2 px-4 rounded"
-          >
-            Save
-          </button>
+          <div class="d-flex justify-content-between">
+            <button @click="saveAccount(account)" class="btn fw-bold py-2 px-4 rounded">
+              Save
+            </button>
+            <button @click="loadAccountTransactions(account)" class="btn btn-showTransactions fw-bold py-2 px-4 rounded ms-4">
+              Load Transactions
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -163,6 +164,7 @@ export default {
 
     onMounted(() => {
       customersStore.fetchAccounts(props.customer.userId);
+      customersStore.transactions = [];
     });
 
     const saveAccount = (account) => {
@@ -284,6 +286,15 @@ button {
   background-color: #e8c547;
   color: black;
   border: 1px solid #000000;
+}
+
+.btn-showTransactions{
+  background-color: #829ECC;
+  color: white;
+}
+
+.btn-showTransactions:hover{
+  background-color: #698dc7;
 }
 
 button:hover {
