@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <header class="mb-4">
+  <div class="customer-search">
+    <header class="mb-4 text-center">
       <h2>Customer Search</h2>
     </header>
-    <div class="container my-4">
+    <div class="container my-4 p-4 border rounded shadow-sm bg-white">
       <div class="form-group">
-        <label for="firstName">First Name</label>
+        <label for="firstName" class="form-label">First Name</label>
         <input
           id="firstName"
           v-model="firstName"
@@ -15,7 +15,7 @@
         />
       </div>
       <div class="form-group mt-3">
-        <label for="lastName">Last Name</label>
+        <label for="lastName" class="form-label">Last Name</label>
         <input
           id="lastName"
           v-model="lastName"
@@ -24,16 +24,20 @@
           type="text"
         />
       </div>
-      <button class="btn btn-success mt-3" type="submit" @click="searchUser">
+      <button
+        class="btn btn-primary mt-4 w-100"
+        type="submit"
+        @click="searchUser"
+      >
         Search User
       </button>
       <div v-if="iban" class="mt-4">
-        <h5>Customer IBAN</h5>
-        <p class="bg-light p-3 border rounded">{{ iban }}</p>
+        <h5 class="text-center">Customer IBAN</h5>
+        <p class="bg-light p-3 border rounded text-center">{{ iban }}</p>
       </div>
       <div v-else class="mt-4">
-        <h5>Customer IBAN</h5>
-        <p class="bg-light p-3 border rounded">No IBAN found</p>
+        <h5 class="text-center">Customer IBAN</h5>
+        <p class="bg-light p-3 border rounded text-center">No IBAN found</p>
       </div>
     </div>
   </div>
@@ -69,7 +73,7 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.customer-search {
   max-width: 600px;
   margin: auto;
 }
@@ -78,11 +82,28 @@ export default {
   margin-bottom: 1rem;
 }
 
+.form-label {
+  font-weight: bold;
+}
+
+.btn {
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.02);
+}
+
 h5 {
   margin-top: 1rem;
 }
 
 .bg-light {
   background-color: #f8f9fa !important;
+}
+
+.container {
+  background-color: #ffffff;
 }
 </style>

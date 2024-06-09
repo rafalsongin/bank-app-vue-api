@@ -73,45 +73,39 @@ export default {
   data() {
     return {
       isLoadingPage: true,
-      currentCustomer: "",
+      currentCustomer: null,
       currentPanel: "Overview",
       isNavigationDisabled: true,
-      panelData: {},
     };
   },
   methods: {
     async fetchCustomerDetails(email) {
       try {
-        await useCustomerProfileStore().fetchCustomerDetails(email);
-        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer);
-
+        const customerProfileStore = useCustomerProfileStore();
+        await customerProfileStore.fetchCustomerDetails(email);
+        this.updateCustomerDetails(customerProfileStore.currentCustomer);
         this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
         this.isLoadingPage = false;
       } catch (error) {
         console.error("Error fetching customer details:", error.message);
-        /* this.$router.push("/404"); */
       }
     },
     async fetchCustomerAccounts() {
       try {
-        await useCustomerProfileStore().fetchCustomerAccounts(
+        const customerProfileStore = useCustomerProfileStore();
+        await customerProfileStore.fetchCustomerAccounts(
           this.currentCustomer.userId
         );
-        this.updateCustomerDetails(useCustomerProfileStore().currentCustomer);
+        this.updateCustomerDetails(customerProfileStore.currentCustomer);
       } catch (error) {
         console.error("Error fetching customer accounts:", error);
         this.$router.push("/404");
       }
     },
     checkAccountStatus(status) {
-      switch (status) {
-        case "VERIFIED":
-          this.isNavigationDisabled = false;
-          this.fetchCustomerAccounts();
-          break;
-        default:
-          this.isNavigationDisabled = true;
-          break;
+      this.isNavigationDisabled = status !== "VERIFIED";
+      if (status === "VERIFIED") {
+        this.fetchCustomerAccounts();
       }
     },
     updateCustomerDetails(updatedCustomer) {
@@ -119,9 +113,6 @@ export default {
     },
     refreshCustomerAccounts() {
       this.fetchCustomerAccounts();
-    },
-    isCurrentPanel(panel) {
-      return panel === this.currentPanel ? "current" : "";
     },
     selectPanel(panel) {
       this.currentPanel = panel;
