@@ -1,32 +1,40 @@
 <template>
-  <div v-if="currentCustomer.accountApprovalStatus == 'VERIFIED' || currentCustomer.accountApprovalStatus == 'UNVERIFIED'" class="profile-page">
+  <div
+    v-if="
+      currentCustomer.accountApprovalStatus == 'VERIFIED' ||
+      currentCustomer.accountApprovalStatus == 'UNVERIFIED'
+    "
+    class="profile-page"
+  >
     <div class="d-flex">
       <div class="nav-panel p-4 rounded-start">
         <CustomerPanelNavigation
-            :currentPanel="currentPanel" :isNavigationDisabled="isNavigationDisabled"
-            @selectPanel="selectPanel" />
+          :currentPanel="currentPanel"
+          :isNavigationDisabled="isNavigationDisabled"
+          @selectPanel="selectPanel"
+        />
       </div>
       <div class="content-panel rounded-end flex-grow-1">
         <div v-if="currentPanel === 'Overview'">
-          <CustomerPanelOverview
-              :currentCustomer="currentCustomer" />
+          <CustomerPanelOverview :currentCustomer="currentCustomer" />
         </div>
         <div v-else-if="currentPanel === 'Accounts'">
-          <CustomerPanelAccounts
-              :currentCustomer="currentCustomer"/>
+          <CustomerPanelAccounts :currentCustomer="currentCustomer" />
         </div>
         <div v-else-if="currentPanel === 'Create Transaction'">
           <CustomerPanelNewTransaction
-              :currentCustomer="currentCustomer"
-              @updateCustomerAccountData="refreshCustomerAccounts"/>
+            :currentCustomer="currentCustomer"
+            @updateCustomerAccountData="refreshCustomerAccounts"
+          />
         </div>
         <div v-else-if="currentPanel === 'Search Customer'">
-          <CustomerPanelSearchCustomer
-              :currentCustomer="currentCustomer" />
+          <CustomerPanelSearchCustomer :currentCustomer="currentCustomer" />
         </div>
         <div v-else-if="currentPanel === 'Settings'">
           <CustomerPanelSettings
-              :currentCustomer="currentCustomer" />
+            :currentCustomer="currentCustomer"
+            @customerUpdated="updateCustomerDetails"
+          />
         </div>
       </div>
     </div>
@@ -34,9 +42,7 @@
   <div v-else-if="currentCustomer.accountApprovalStatus == 'DECLINED'">
     <CustomerPanelSuspended />
   </div>
-  <div v-else>
-
-  </div>
+  <div v-else></div>
 </template>
 
 <script>
@@ -60,53 +66,60 @@ export default {
     CustomerPanelAccounts,
     CustomerPanelNewTransaction,
     CustomerPanelSearchCustomer,
-    CustomerPanelSettings
+    CustomerPanelSettings,
   },
   data() {
     return {
       currentPanel: "Overview",
-      currentCustomer:
-          {
-            userId: "",
-            email: "",
-            firstName: "",
-            lastName: "",
-            bankId: "",
-            userRole: "",
-            phoneNumber: "",
-            accountApprovalStatus: "",
-            transactionLimit: null,
-            accounts: [],
-            bsn: "",
-            username: "",
-            password: "",
-          },
+      currentCustomer: {
+        userId: "",
+        email: "",
+        firstName: "",
+        lastName: "",
+        bankId: "",
+        userRole: "",
+        phoneNumber: "",
+        accountApprovalStatus: "",
+        transactionLimit: null,
+        accounts: [],
+        bsn: "",
+        username: "",
+        password: "",
+      },
       isNavigationDisabled: true,
-      panelData: {}
+      panelData: {},
     };
   },
   methods: {
     async fetchCustomerDetails(email) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/customers/email/${email}`);
+        const response = await axios.get(
+          `http://localhost:8080/api/customers/email/${email}`
+        );
 
         if (response.status !== 200) {
           throw new Error("User was not found!");
         }
 
+        console.log("Customer Details:");
+        console.log(response.data);
+
         this.currentCustomer = response.data;
         this.checkAccountStatus(this.currentCustomer.accountApprovalStatus);
       } catch (error) {
-        console.error('Error fetching customer details:', error.message);
+        console.error("Error fetching customer details:", error.message);
         /* this.$router.push("/404"); */
       }
     },
-    refreshCustomerAccounts(){
-      this.fetchCustomerAccounts(this.currentCustomer.userId)
+    refreshCustomerAccounts() {
+      this.fetchCustomerAccounts(this.currentCustomer.userId);
     },
     async fetchCustomerAccounts(id) {
       try {
+        console.log("Pushed AccountId to fetch accounts: " + id);
         const response = await axios.get(`/api/accounts/customer/${id}`);
+
+        console.log(response.data);
 
         if (response.status !== 200) {
           throw new Error("Customer accounts were not found!");
@@ -114,32 +127,35 @@ export default {
 
         this.currentCustomer.accounts = response.data;
       } catch (error) {
-        console.error('Error fetching customer accounts:', error);
-        /*this.$router.push("/404");*/
+        console.error("Error fetching customer accounts:", error);
+        this.$router.push("/404");
       }
     },
-    selectPanel(panel) {
-      this.currentPanel = panel;
-    },
     isCurrentPanel(panel) {
-      return panel === this.currentPanel ? 'current' : '';
+      return panel === this.currentPanel ? "current" : "";
     },
-    checkAccountStatus(status){
-      switch (status){
+    checkAccountStatus(status) {
+      switch (status) {
         case "VERIFIED":
           this.isNavigationDisabled = false;
           this.fetchCustomerAccounts(this.currentCustomer.userId);
           break;
         default:
-          this.isNavigationDisabled =true;
+          this.isNavigationDisabled = true;
           break;
       }
-    }
+    },
+    updateCustomerDetails(updatedCustomer) {
+      this.currentCustomer = updatedCustomer; // Added this method
+    },
+    selectPanel(panel) {
+      this.currentPanel = panel;
+    },
   },
   created() {
     const email = this.$route.params.id;
     this.fetchCustomerDetails(email);
-  }
+  },
 };
 </script>
 
@@ -162,8 +178,8 @@ export default {
 }
 
 .current {
-  background-color: #5C80BC;
-  color: #30323D;
+  background-color: #5c80bc;
+  color: #30323d;
   border-radius: 5px;
 }
 </style>

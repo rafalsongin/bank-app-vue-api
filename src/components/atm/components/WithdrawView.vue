@@ -25,7 +25,7 @@ export default {
   methods: {
     async withdraw() {
       try {
-        await axios.post('http://localhost:8080/atm/withdraw', {
+        await axios.post('https://www.songin.me/bankapp-backend/atm/withdraw', {
           amount: this.amount
         }, {
           headers: {
