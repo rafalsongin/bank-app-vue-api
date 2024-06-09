@@ -1,11 +1,14 @@
 <template>
   <div class="container my-4">
-    <h2 class="mb-4">Create Transaction</h2>
-    <form @submit.prevent="submitForm" class="needs-validation" novalidate>
+    <header class="mb-4">
+      <h2>Create Transaction</h2>
+    </header>
+    <form class="needs-validation" novalidate @submit.prevent="submitForm">
       <div class="row mb-3">
         <div class="col-md-12">
-          <label for="transactionType" class="form-label">Transaction Type:</label>
-          <select id="transactionType" v-model="transaction.transactionType" @change="selectTransactionType" class="form-select" required>
+          <label class="form-label" for="transactionType">Transaction Type:</label>
+          <select id="transactionType" v-model="transaction.transactionType" class="form-select"
+                  required @change="selectTransactionType">
             <option v-for="transactionType in transactionTypes" :key="transactionType" :value="transactionType">
               {{ transactionType }}
             </option>
@@ -15,47 +18,53 @@
 
       <div class="row mb-3">
         <div class="col-md-6">
-          <label for="amount" class="form-label">Amount:</label>
-          <input type="number" id="amount" v-model="transaction.amount" class="form-control" required />
+          <label class="form-label" for="amount">Amount:</label>
+          <input id="amount" v-model="transaction.amount" class="form-control" required type="number"/>
         </div>
       </div>
 
       <div class="row mb-3">
         <div class="col-md-12">
-          <label for="fromAccount" class="form-label">From Account (IBAN):</label>
+          <label class="form-label" for="fromAccount">From Account (IBAN):</label>
           <select id="fromAccount" v-model="transaction.fromAccount" class="form-select" required>
             <option v-for="account in filteredFromAccounts" :key="account.iban" :value="account.iban">
-              {{ account.iban }}
+              {{ account.iban }} ({{ account.accountType }})
             </option>
           </select>
-          <div v-if="selectedAccount" class="mt-2 text-muted">Balance: {{ selectedAccount.balance.toFixed(2) }}&#8364</div>
+          <div v-if="selectedAccount" class="mt-2 text-muted">Balance: {{
+              selectedAccount.balance.toFixed(2)
+            }}&#8364
+          </div>
+          <div v-if="selectedAccount" class="mt-2 text-muted">Available Daily Transfer:
+            {{ selectedAccount.availableDailyAmountForTransfer.toFixed(2) }}&#8364
+          </div>
         </div>
       </div>
 
       <div class="row mb-3">
         <div class="col-md-12">
-          <label for="toAccount" class="form-label">To Account (IBAN):</label>
+          <label class="form-label" for="toAccount">To Account (IBAN):</label>
           <div v-if="transaction.transactionType === 'Internal Transaction'">
             <select id="toAccount" v-model="transaction.toAccount" class="form-select" required>
               <option v-for="account in filteredToAccounts" :key="account.iban" :value="account.iban">
-                {{ account.iban }}
+                {{ account.iban }} ({{ account.accountType }})
               </option>
             </select>
           </div>
           <div v-else>
-            <input type="text" id="toAccount" v-model="transaction.toAccount" class="form-control" required />
+            <input id="toAccount" v-model="transaction.toAccount" class="form-control" required type="text"/>
           </div>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-success">Create Transaction</button>
+      <button class="btn btn-success" type="submit">Create Transaction</button>
     </form>
   </div>
 </template>
 
 <script>
-import { useTransactionCreateStore } from '@/stores/transactionCreateStore';
-import { mapState, mapActions } from 'pinia';
+import {useTransactionCreateStore} from '@/stores/transactionCreateStore';
+import {mapActions, mapState} from 'pinia';
 import DOMPurify from 'dompurify';
 import Swal from 'sweetalert2';
 
@@ -86,8 +95,8 @@ export default {
         if (this.transaction.transactionType === this.transactionTypes[0]) { // Internal
           const selectedAccount = this.currentCustomer.accounts.find(account => account.iban === this.transaction.fromAccount);
           return this.currentCustomer.accounts.filter(account =>
-            account.iban !== this.transaction.fromAccount &&
-            account.iban !== selectedAccount?.toAccount
+              account.iban !== this.transaction.fromAccount &&
+              account.iban !== selectedAccount?.toAccount
           );
         } else {
           return [];
@@ -117,11 +126,9 @@ export default {
         this.setInitiatorCustomer(this.transaction);
 
         const response = await this.createTransaction(this.transaction);
-        if(!response){
+        if (!response) {
           throw Error('There was an error creating the transaction. Please try again.');
-        }
-        else{
-
+        } else {
           Swal.fire({
             title: 'Success!',
             text: 'Transaction created successfully!',
@@ -134,26 +141,26 @@ export default {
       } catch (error) {
         Swal.fire({
           title: 'Error!',
-          text: `Error: `+ error.message,
+          text: `Error: ` + error.message,
           icon: 'error',
           confirmButtonText: 'OK'
         });
       }
     },
     isTransferAmountValid(selectedAccount) {
-      try{
+      try {
         if (!selectedAccount) {
           throw Error('From Account was not selected!');
         } else {
-          if(this.transaction.amount <= 0){
+          if (this.transaction.amount <= 0) {
             throw Error('Transaction amount is not valid!');
           }
-          if ((this.selectedAccount.balance-this.transaction.amount) < selectedAccount.absoluteTransferLimit) {
+          if ((this.selectedAccount.balance - this.transaction.amount) < selectedAccount.absoluteTransferLimit) {
             throw Error('Absolute transfer amount reached!');
           }
           return true;
         }
-      }catch(error){
+      } catch (error) {
         throw Error(error.message);
       }
     },
@@ -162,10 +169,10 @@ export default {
       this.transaction.toAccount = "";
       this.transaction.transactionType = event.target.value;
     },
-    setInitiatorCustomer(transaction){
+    setInitiatorCustomer(transaction) {
       transaction.initiatedByUser = this.currentCustomer.userId;
     },
-    refreshCustomerAccountData(){
+    refreshCustomerAccountData() {
       this.$emit('updateCustomerAccountData');
     },
     /* Sanitization on fe is for ux */
@@ -190,7 +197,7 @@ label {
 }
 
 input, select {
-  width: 25%;
+  width: 35%;
   padding: 8px;
   box-sizing: border-box;
 }
