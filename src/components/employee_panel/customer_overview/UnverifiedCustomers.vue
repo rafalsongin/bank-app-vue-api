@@ -51,12 +51,30 @@ import { useCustomersStore } from "../../../stores/customersStore";
 import { computed, ref } from "vue";
 
 export default {
-  setup() {
+  props: {
+    customers: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
     const customersStore = useCustomersStore();
+    const searchQuery = ref(customersStore.searchQuery);
 
-    const filteredCustomers = computed(
-      () => customersStore.unverifiedCustomers
-    );
+    const filteredCustomers = computed(() => {
+      let filtered = props.customers.filter(
+        (customer) => customer.accountApprovalStatus === "UNVERIFIED"
+      );
+      if (searchQuery.value) {
+        const searchTerm = searchQuery.value.toLowerCase();
+        filtered = filtered.filter((customer) => {
+          return Object.values(customer).some((value) =>
+            String(value).toLowerCase().includes(searchTerm)
+          );
+        });
+      }
+      return filtered;
+    });
 
     const currentPage = ref(1);
     const itemsPerPage = ref(10);
@@ -92,6 +110,7 @@ export default {
     };
 
     return {
+      searchQuery,
       paginatedCustomers,
       approveCustomer,
       declineCustomer,
