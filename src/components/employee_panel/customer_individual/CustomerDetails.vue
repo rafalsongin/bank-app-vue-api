@@ -29,7 +29,6 @@
         <div
           v-for="account in accounts"
           :key="account.iban"
-          @click="loadAccountTransactions(account)"
           class="account-details text-white rounded-lg shadow-md"
         >
           <p class="text-lg mb-2">
@@ -64,12 +63,14 @@
               />
             </label>
           </div>
-          <button
-            @click="saveAccount(account)"
-            class="fw-bold py-2 px-4 rounded"
-          >
-            Save
-          </button>
+          <div class="d-flex justify-content-between">
+            <button @click="saveAccount(account)" class="btn fw-bold py-2 px-4 rounded">
+              Save
+            </button>
+            <button @click="loadAccountTransactions(account)" class="btn btn-showTransactions fw-bold py-2 px-4 rounded ms-4">
+              Load Transactions
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -110,32 +111,32 @@
           </tbody>
         </table>
         <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <li
-                class="page-item"
-                :class="{ disabled: currentPage === 1 }"
-                @click="setPage(currentPage - 1)"
-              >
-                <a class="page-link" href="#">Previous</a>
-              </li>
-              <li
-                class="page-item"
-                v-for="page in totalPages"
-                :key="page"
-                :class="{ active: currentPage === page }"
-                @click="setPage(page)"
-              >
-                <a class="page-link" href="#">{{ page }}</a>
-              </li>
-              <li
-                class="page-item"
-                :class="{ disabled: currentPage === totalPages }"
-                @click="setPage(currentPage + 1)"
-              >
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
+          <ul class="pagination justify-content-center">
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === 1 }"
+              @click="setPage(currentPage - 1)"
+            >
+              <a class="page-link" href="#">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+              @click="setPage(page)"
+            >
+              <a class="page-link" href="#">{{ page }}</a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === totalPages }"
+              @click="setPage(currentPage + 1)"
+            >
+              <a class="page-link" href="#">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -163,6 +164,7 @@ export default {
 
     onMounted(() => {
       customersStore.fetchAccounts(props.customer.userId);
+      customersStore.transactions = [];
     });
 
     const saveAccount = (account) => {
@@ -181,8 +183,8 @@ export default {
     const setPage = (page) => {
       if (page > 0 && page <= totalPages.value) {
         customersStore.fetchTransactionsByIban(
-        selectedAccount.value.iban,
-        page,
+          selectedAccount.value.iban,
+          page
         );
       }
     };
@@ -284,6 +286,15 @@ button {
   background-color: #e8c547;
   color: black;
   border: 1px solid #000000;
+}
+
+.btn-showTransactions{
+  background-color: #829ECC;
+  color: white;
+}
+
+.btn-showTransactions:hover{
+  background-color: #698dc7;
 }
 
 button:hover {

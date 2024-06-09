@@ -174,6 +174,20 @@ export default {
       let newBalance = this.fromAccountDetails.balance - this.amount;
 
       switch (true) {
+        case !this.isValidIban(this.toIban):
+          Swal.fire({
+            icon: "error",
+            title: "Invalid account",
+            text: "Please enter a valid account number in the To IBAN field.",
+          });
+          return false;
+        case !this.isValidIban(this.fromIban):
+          Swal.fire({
+            icon: "error",
+            title: "Invalid account",
+            text: "Please enter a valid account number in the From IBAN field.",
+          });
+          return false;
         case this.fromIban === "":
           Swal.fire({
             icon: "error",
