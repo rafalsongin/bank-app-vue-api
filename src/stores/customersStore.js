@@ -34,7 +34,6 @@ export const useCustomersStore = defineStore('customers', {
         fetchCustomers() {
             Swal.fire({
                 title: 'Loading...',
-                text: 'Please wait while searching for the IBAN',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
@@ -101,14 +100,16 @@ export const useCustomersStore = defineStore('customers', {
                 }
             } catch (error) {
                 if (error.response && error.response.status === 400) {
-                    Swal.fire("Bad Request", error.response.data, "info");
+                    await Swal.fire("Bad Request", error.response.data, "info");
                 } else {
-                    Swal.fire({
+                    await Swal.fire({
                         icon: "error",
                         title: "Failed to close customer account",
                         text: error.message,
                     });
                 }
+            } finally {
+                Swal.close();
             }
         },
         approveCustomer(userId) {
