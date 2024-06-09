@@ -55,18 +55,26 @@ export const useTransactionFetchStore = defineStore('transactions', {
                     this.transactions = [];
                     this.currentPage = 1;
                     this.totalPages = 1;
-                    Swal.close();
                     await Swal.fire({
                         icon: 'info',
                         title: 'No transactions found',
                     });
                 }
             } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Failed to fetch transactions: " + error.message,
-                });
+                if (error.response && error.response.data) {
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "Failed to fetch transactions",
+                        text: error.response.data,
+                    });
+                    console.error(error.response.data);
+                } else {
+                      await Swal.fire({
+                          icon: "error",
+                          title: "Failed to fetch transactions",
+                          text: error.message,
+                      });
+                    }
             } finally {
                 Swal.close();
             }
