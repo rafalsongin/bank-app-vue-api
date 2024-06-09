@@ -10,7 +10,6 @@ export const searchCustomerIbanByName = defineStore('customer', {
     }),
     actions: {
         async searchUser() {
-
             try {
                 Swal.fire({
                     title: 'Loading...',
