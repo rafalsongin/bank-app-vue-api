@@ -22,13 +22,13 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import AtmLogin from '../components/AtmLogin.vue';
 import TransactionMenu from '../components/TransactionMenu.vue';
 import BalanceView from '../components/BalanceView.vue';
 import DepositView from '../components/DepositView.vue';
 import WithdrawView from '../components/WithdrawView.vue';
-import { useAtmStore } from '@/stores/atmStore.js';
+import {useAtmStore} from '@/stores/AtmStore.js';
 
 import Swal from 'sweetalert2';
 
