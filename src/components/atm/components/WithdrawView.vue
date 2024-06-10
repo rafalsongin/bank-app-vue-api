@@ -13,34 +13,27 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { ref } from 'vue';
+import { useAtmStore } from '@/stores/AtmStore';
 import Swal from 'sweetalert2';
 
 export default {
-  data() {
-    return {
-      amount: 0
-    };
-  },
-  methods: {
-    async withdraw() {
+  setup(props, { emit }) {
+    const amount = ref(0);
+    const store = useAtmStore();
+
+    const withdraw = async () => {
       try {
-        await axios.post('https://www.songin.me/bankapp-backend/atm/withdraw', {
-          amount: this.amount
-        }, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        await store.withdraw(amount.value);
         Swal.fire({
           icon: 'success',
           title: 'Withdrawal successful',
           showConfirmButton: false,
           timer: 1500
         }).then(() => {
-          this.$emit('update-balance');
+          emit('update-balance');
         });
-        this.goBack();
+        goBack();
       } catch (error) {
         console.error('Error making withdrawal:', error);
         Swal.fire({
@@ -50,10 +43,17 @@ export default {
           showConfirmButton: true
         });
       }
-    },
-    goBack() {
-      this.$emit('go-back');
-    }
+    };
+
+    const goBack = () => {
+      emit('go-back');
+    };
+
+    return {
+      amount,
+      withdraw,
+      goBack
+    };
   }
 }
 </script>

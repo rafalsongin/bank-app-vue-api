@@ -13,34 +13,27 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { ref } from 'vue';
+import { useAtmStore } from '@/stores/AtmStore';
 import Swal from 'sweetalert2';
 
 export default {
-  data() {
-    return {
-      amount: 0
-    };
-  },
-  methods: {
-    async deposit() {
+  setup(props, { emit }) {
+    const amount = ref(0);
+    const store = useAtmStore();
+
+    const deposit = async () => {
       try {
-        await axios.post('https://www.songin.me/bankapp-backend/atm/deposit', {
-          amount: this.amount
-        }, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        await store.deposit(amount.value);
         Swal.fire({
           icon: 'success',
           title: 'Deposit successful',
           showConfirmButton: false,
           timer: 1500
         }).then(() => {
-          this.$emit('update-balance');
+          emit('update-balance');
         });
-        this.goBack();
+        goBack();
       } catch (error) {
         console.error('Error making deposit:', error);
         Swal.fire({
@@ -50,10 +43,17 @@ export default {
           showConfirmButton: true
         });
       }
-    },
-    goBack() {
-      this.$emit('go-back');
-    }
+    };
+
+    const goBack = () => {
+      emit('go-back');
+    };
+
+    return {
+      amount,
+      deposit,
+      goBack
+    };
   }
 }
 </script>

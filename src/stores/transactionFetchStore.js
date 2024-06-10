@@ -1,51 +1,82 @@
 import { defineStore } from 'pinia';
 import axios from '../axios_auth';
-import { useAuthStore } from "./authStore";
+import { useAuthStore } from './authStore';
+import Swal from "sweetalert2";
 
 export const useTransactionFetchStore = defineStore('transactions', {
     state: () => ({
         transactions: [],
+        currentPage: 1,
+        totalPages: 1,
+        itemsPerPage: 10,
     }),
     actions: {
-        async fetchTransactionsByAccountIban(accountId, filters) {  // to fix issues id pushed
+        async fetchTransactionsByAccountIban(
+            iban,
+            { page = 1, startDate = null, endDate = null, amountCondition = 'equal', amountValue = null, fromIban = null, toIban = null } = {}
+        ) {
+            Swal.fire({
+                title: "Loading...",
+                text: "Please wait while transactions are loading",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('JWT token is missing');
-                }
                 const authStore = useAuthStore();
                 const username = authStore.username;
                 const role = authStore.role;
+
                 if (!username || !role) {
-                    throw new Error("User not found!");        
+                    throw new Error("User not found!");
                 }
 
                 const params = {
-                    ...filters,
+                    page,
+                    size: this.itemsPerPage,
+                    startDate,
+                    endDate,
+                    amountCondition,
+                    amountValue,
+                    fromIban,
+                    toIban,
                     username,
                     role,
-                  };
+                };
 
-                //const response = await axios.get(`api/transactions/account/${accountIban}`, {
-                const response = await axios.get(`api/transactions/accountId/${accountId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    params,
-                });
-                console.log(response, params);
-                
-                if (response.status === 200 || response.status === 201) {
-                    this.transactions = response.data;
-                } else if (response.status === 204) {
-                    this.transactions = [];
+                const response = await axios.get(`api/transactions/account/${iban}`, { params });
+
+                if (response.data && response.data.content.length > 0) {
+                    this.transactions = response.data.content;
+                    this.currentPage = response.data.number + 1;
+                    this.totalPages = response.data.totalPages;
                 } else {
-                    throw new Error("Error when fetching transactions:", error.message);
+                    this.transactions = [];
+                    this.currentPage = 1;
+                    this.totalPages = 1;
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'No transactions found',
+                    });
                 }
             } catch (error) {
-                this.transactions = [];
-                throw new Error(error.message);
+                if (error.response && error.response.data) {
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "Failed to fetch transactions",
+                        text: error.response.data,
+                    });
+                    console.error(error.response.data);
+                } else {
+                      await Swal.fire({
+                          icon: "error",
+                          title: "Failed to fetch transactions",
+                          text: error.message,
+                      });
+                    }
+            } finally {
+                Swal.close();
             }
         },
     },
